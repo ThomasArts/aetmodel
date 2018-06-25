@@ -87,6 +87,7 @@ Complementary paths:
 
 ##### 2. Exploit vulnerabilities in authentication code
 	(2.1) Exploit incomplete or otherwise flawed verification of signatures
+        (2.1.1)  when validating transactions
  * **Past attacks** 
  	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
 	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
@@ -116,6 +117,8 @@ Complementary paths:
 |  1.3 | Remote exploitation of client applications  | Penetration testing of client applications  | Exclude/ignore outdated clients (?) |  |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   |
+|  2.1.1 |  Code flaw in transaction validation can be exploited to
+|spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  |
 |  3.1 |  Needs additional investigation |   |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
