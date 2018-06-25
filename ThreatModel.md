@@ -68,13 +68,26 @@ Complementary paths:
 	(1.2) In Storage.  
 		(1.2.1) Local storage.  
 		(1.2.2) Third-party storage (e.g. wallets).  
-	(1.3) At Logging time. 
+	(1.3) At logging time. 
 
- * **Past attacks** ...
- * **Categories** Spoofing; Denial of Service;
+ * **Past attacks** 
+ 	* [2011 Private keys stolen from wallet](https://bitcointalk.org/index.php?topic=16457.msg214423#msg214423)
+ 	* [2017 MtGox wallet.dat file stolen (e.g. through exploit, rogue employee, back-up theft)](https://blog.wizsec.jp/2017/07/breaking-open-mtgox-1.html)
+ 	* [2017 Malicious wallet Providers](https://mybroadband.co.za/news/banking/214178-ethereum-wallet-provider-steals-account-keys-and-cashes-out.html)
+ 	* [2017 Exploit in Parity wallet](https://thehackernews.com/2017/07/ethereum-cryptocurrency-hacking.html)
+ 	* [2017 Bug in Parity wallet](https://www.theguardian.com/technology/2017/nov/08/cryptocurrency-300m-dollars-stolen-bug-ether)
+ 	* [2018 Bug/misconfiguration in client node](https://thehackernews.com/2018/06/ethereum-geth-hacking.html) 
+ 	* [2018 Conrail wallet exploit](https://mashable.com/2018/06/11/coinrail-exchange-hack/?europe=true)
+ * **Categories** Spoofing; Denial of Service.  
+ ``` 
+ "Categories" denote the threats where attacks listed in this branch may be applied;
+ ```
 
 ##### 2. Exploit vulnerabilities in authentication code
 ##### 3. Exploit vulnerabilities network communication
+ * **Past attacks** 
+ 	* [2018 BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
+
 
 ####Broadcasting fake transactions
  * Invalid transactions - can be enabled by vulnerablities in the verification sw 
