@@ -92,7 +92,7 @@ Complementary paths:
  	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
 	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
 	
-##### 3. Exploit vulnerabilities network communication
+##### 3. Exploit vulnerabilities in network communication
 	(3.1) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
  * **Past attacks** 
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
@@ -106,23 +106,17 @@ Complementary paths:
 
 ####(5) Denial of service
 
-##### 1. Overloading with transactions
-Creating and posting a transaction is a computationally cheap action
-for an attacker. A valid transaction is a transaction that can
-potentially be included in a future block and that a miner receives a
-fee for.
-Valdiation of a transaction is computational cheap,
-but having to validate many transactions that cannot be included in a
-block, is a computational overhead for a node. If an attacker could
-post enormous amounts of transactions to the network, it could
-potentially impact the rate in which correct transactions are
-accepted.
-Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this*  validated for each new block candidate.
+##### 1. Overloading with transactions	(1.1) At generation time.
 
-  (5.1) Posting invalid transactions
-  (5.2) Posting valid, but impossible transactions
-  (5.3) Exploiting memory leaks in cleaning transaction pool
+Creating and posting a transaction is a computationally cheap action for an attacker. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.
+Valdiation of a transaction is computational cheap, but having to validate many transactions that cannot be included in a block, is a computational overhead for a node. If an attacker could
+post enormous amounts of transactions to the network, it could potentially impact the rate in which correct transactions are accepted.
+Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this*  validated for each new block candidate.  
 
+	(5.1) Posting invalid transactions.
+	(5.2) Posting valid, but impossible transactions
+	(5.3) Exploiting memory leaks in cleaning transaction pool
+	
  * **Past attacks** 
   
 ## STRIDE Threat Trees
@@ -137,8 +131,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 |  1.3 | Remote exploitation of client applications  | Penetration testing of client applications  | Exclude/ignore outdated clients (?) |  |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   |
-|  2.1.1 |  Code flaw in transaction validation can be exploited to
-|spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  |
+|  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  |
 |  3.1 |  Needs additional investigation |   |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
@@ -167,15 +160,9 @@ Transactions may validate but nevertheless not be possible to include in a block
 ### 5. Denial of service
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
 |---|---|---|---|---|
-| 5.1  | Posting invalid transactions  | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.  |   |
-| 5.2  | Posting valid, but impossible transactions  | Validation is
-light-weight and ensures that if the transaction is accepted in a
-block candidate fee and gas can be paid.  | Valid transactions have a
-configurable TTL that determines how long a transaction may stay in
-the memory pool. By default a node is configured to have a transaction
-in the pool for at most 256 blocks.  |   |
-| 5.3  | Exploiting memory leaks in cleaning transaction pool  |
-Erlang is a garbage collected language _TODO: names as atoms_  |   |   |
+| 5.1  | Posting invalid transactions  | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.  | 
+| 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |
+| 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language _TODO: names as atoms_  |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
 
