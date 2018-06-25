@@ -51,27 +51,31 @@ Blockchain-ng - selecting a leader who can mine the blockchain, until the next l
 
 Complementary paths:  
 ###1. Use the **STRIDE** model to threat modelling:   
-* **Spoofing** - Impersonating something or someone else.  
-* **Tampering** - Modifying data (transaction content?) or code.   
-* **Repudiation** - Claiming	to	have	not  performed an action.   
-* **Information disclosure** - Exposing information to someone not authorized to see it.  
-* **Denial of service** - Deny or	degrade service to users.  
-* **Elevation of privilege** -  Gain	capabilities without proper authorization
+* **(1) Spoofing** - Impersonating something or someone else.  
+* **(2) Tampering** - Modifying data (transaction content?) or code.   
+* **(3) Repudiation** - Claiming	to	have not performed an action.   
+* **(4) Information disclosure** - Exposing information to someone not authorized to see it.  
+* **(5) Denial of service** - Deny or	degrade service to users.  
+* **(6) Elevation of privilege** -  Gain capabilities without proper authorization
+* **(7) Other?...**
  
 ###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks 
 
-####An attacker could steal a users private keys
-	* Users
-	* Miners
-	* Peers
-	* Oracles
-	* Contracts
- * Multiple malicious actions possible (enumerate to build tree)
- * **mitigation** ensure key never purposefully in the system
- * **past attacks** ...
- * Spoofing; Denial of Service;
+####(1) Spoofing: Spoof user actions
 
- 
+##### 1. Obtain private keys
+	(1.1) At generation time.  
+	(1.2) In Storage.  
+		(1.2.1) Local storage.  
+		(1.2.2) Third-party storage (e.g. wallets).  
+	(1.3) At Logging time. 
+
+ * **Past attacks** ...
+ * **Categories** Spoofing; Denial of Service;
+
+##### 2. Exploit vulnerabilities in authentication code
+##### 3. Exploit vulnerabilities network communication
+
 ####Broadcasting fake transactions
  * Invalid transactions - can be enabled by vulnerablities in the verification sw 
  * Tampered transactions - e.g. executing actions in the name of a contract
@@ -84,11 +88,14 @@ Complementary paths:
   
 ## STRIDE Threat Trees
 
-### 1. Spoofing
+### 1. User Spoofing
 
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
 |---|---|---|---|---|
-|   |   |   |   |   |
+| 1.1  | Vulnerabilities in key generation implementation can lead to generation of generation of keys that are predictable or brute-forceable  | Test Key generation implementation | Protocol can enforce keys of a certain length |   |
+|  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) |
+|  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   |
+| 1.3  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
 
