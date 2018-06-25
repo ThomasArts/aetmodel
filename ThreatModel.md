@@ -70,7 +70,7 @@ Complementary paths:
 	(1.2) At rest / in storage.
 		(1.2.1) Local storage.
 		(1.2.2) Third-party storage (e.g. on-line wallets).  
-	(1.3) Client node run time.
+	(1.3) Client node run time. *** explain what a client node is ??***
 	(1.4) At logging time.
 
  * **Past attacks** 
@@ -123,48 +123,48 @@ Transactions may validate but nevertheless not be possible to include in a block
 
 ### 1. Component Spoofing
 
-|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
-|---|---|---|---|---|
-| 1.1  | Vulnerabilities in key generation implementation can lead to generation of generation of keys that are predictable or brute-forceable  | Test Key generation implementation | Protocol can enforce keys of a certain length |   |
-|  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) |
-|  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   |
-|  1.3 | Remote exploitation of client applications  | Penetration testing of client applications  | Exclude/ignore outdated clients (?) |  |
-| 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
-|  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   |
-|  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  |
-|  3.1 |  Needs additional investigation |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priotity |
+|---|---|---|---|---|---|---|
+| 1.1  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions.  | TODO: verify that the user cannot accidentally use a key with less than 256 bits | low priority (unlikely) |
+|  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
+|  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
+| 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
+|  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
+|  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
+|  3.1 |  Needs additional investigation |   |   |   | |   |
+|   |   |   |   |   |  |  |
+|   |   |   |   |   |  |  |
 
 ### 2. Tampering
-|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
-|---|---|---|---|---|
-|   |   |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
+|---|---|---|---|---|---|---|
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
 
 ### 3. Repudiation
-|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
-|---|---|---|---|---|
-|   |   |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
+|---|---|---|---|---|---|---|
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
 
 ### 4. Information Disclosure
-|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
-|---|---|---|---|---|
-|   |   |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
+|---|---|---|---|---|---|---|
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
 
 ### 5. Denial of service
-|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
-|---|---|---|---|---|
-| 5.1  | Posting invalid transactions  | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.  | 
-| 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |
-| 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language _TODO: names as atoms_  |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
+|---|---|---|---|---|---|---|
+| 5.1  | Posting invalid transactions  | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.  |   |   |  |
+| 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
+| 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language _TODO: names as atoms_  |   |   |   |   |
+|   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |
 
 ### 6. Elevation of privilege
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
