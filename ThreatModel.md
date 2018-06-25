@@ -64,30 +64,36 @@ Complementary paths:
 ####(1) Spoofing: Spoof user actions
 
 ##### 1. Obtain private keys
-	(1.1) At generation time.  
-	(1.2) In Storage.  
-		(1.2.1) Local storage.  
-		(1.2.2) Third-party storage (e.g. wallets).  
-	(1.3) At logging time. 
+	(1.1) At generation time.
+	(1.2) At rest / in storage.
+		(1.2.1) Local storage.
+		(1.2.2) Third-party storage (e.g. on-line wallets).  
+	(1.3) Client node run time.
+	(1.4) At logging time.
 
  * **Past attacks** 
- 	* [2011 Private keys stolen from wallet](https://bitcointalk.org/index.php?topic=16457.msg214423#msg214423)
- 	* [2017 MtGox wallet.dat file stolen (e.g. through exploit, rogue employee, back-up theft)](https://blog.wizsec.jp/2017/07/breaking-open-mtgox-1.html)
- 	* [2017 Malicious wallet Providers](https://mybroadband.co.za/news/banking/214178-ethereum-wallet-provider-steals-account-keys-and-cashes-out.html)
- 	* [2017 Exploit in Parity wallet](https://thehackernews.com/2017/07/ethereum-cryptocurrency-hacking.html)
- 	* [2017 Bug in Parity wallet](https://www.theguardian.com/technology/2017/nov/08/cryptocurrency-300m-dollars-stolen-bug-ether)
- 	* [2018 Bug/misconfiguration in client node](https://thehackernews.com/2018/06/ethereum-geth-hacking.html) 
- 	* [2018 Conrail wallet exploit](https://mashable.com/2018/06/11/coinrail-exchange-hack/?europe=true)
+ 	* [2011 | Bitcoin | Private keys stolen from wallet](https://bitcointalk.org/index.php?topic=16457.msg214423#msg214423)
+ 	* [2017 | Bitcoin | MtGox wallet.dat file stolen (e.g. through exploit, rogue employee, back-up theft)](https://blog.wizsec.jp/2017/07/breaking-open-mtgox-1.html)
+ 	* [2017 | Ethereum | Malicious wallet Providers](https://mybroadband.co.za/news/banking/214178-ethereum-wallet-provider-steals-account-keys-and-cashes-out.html)
+ 	* [2017 | Ethereum | Exploit in Parity wallet](https://thehackernews.com/2017/07/ethereum-cryptocurrency-hacking.html)
+ 	* [2017 | Ethereum | Bug in Parity wallet](https://www.theguardian.com/technology/2017/nov/08/cryptocurrency-300m-dollars-stolen-bug-ether)
+ 	* [2018 | Ethereum | Bug/misconfiguration in client node](https://thehackernews.com/2018/06/ethereum-geth-hacking.html) 
+ 	* [2018 | Ethereum | Conrail wallet exploit](https://mashable.com/2018/06/11/coinrail-exchange-hack/?europe=true)
  * **Categories** Spoofing; Denial of Service.  
  ``` 
- "Categories" denote the threats where attacks listed in this branch may be applied;
+ info: "Categories" denote the threats where attacks listed in this branch may be applied;
  ```
 
 ##### 2. Exploit vulnerabilities in authentication code
-##### 3. Exploit vulnerabilities network communication
+	(2.1) Exploit incomplete or otherwise flawed verification of signatures
  * **Past attacks** 
- 	* [2018 BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
-
+ 	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
+	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
+	
+##### 3. Exploit vulnerabilities network communication
+	(3.1) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
+ * **Past attacks** 
+ 	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
 ####Broadcasting fake transactions
  * Invalid transactions - can be enabled by vulnerablities in the verification sw 
@@ -96,19 +102,18 @@ Complementary paths:
  * **past attacks** ...
  * Denial of Service - only gossip valid transactions; "banning" users maybe implemented; information disclosure.
  
-
-
   
 ## STRIDE Threat Trees
 
-### 1. User Spoofing
+### 1. Component Spoofing
 
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
 |---|---|---|---|---|
 | 1.1  | Vulnerabilities in key generation implementation can lead to generation of generation of keys that are predictable or brute-forceable  | Test Key generation implementation | Protocol can enforce keys of a certain length |   |
 |  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) |
 |  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   |
-| 1.3  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
+|  1.3 | Remote exploitation of client applications  | Penetration testing of client applications  | Exclude/ignore outdated clients (?) |  |
+| 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
 
