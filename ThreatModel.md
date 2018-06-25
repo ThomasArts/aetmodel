@@ -103,7 +103,27 @@ Complementary paths:
  * **mitigation** ensure key never purposefully in the system
  * **past attacks** ...
  * Denial of Service - only gossip valid transactions; "banning" users maybe implemented; information disclosure.
- 
+
+####(5) Denial of service
+
+##### 1. Overloading with transactions
+Creating and posting a transaction is a computationally cheap action
+for an attacker. A valid transaction is a transaction that can
+potentially be included in a future block and that a miner receives a
+fee for.
+Valdiation of a transaction is computational cheap,
+but having to validate many transactions that cannot be included in a
+block, is a computational overhead for a node. If an attacker could
+post enormous amounts of transactions to the network, it could
+potentially impact the rate in which correct transactions are
+accepted.
+Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this*  validated for each new block candidate.
+
+  (5.1) Posting invalid transactions
+  (5.2) Posting valid, but impossible transactions
+  (5.3) Exploiting memory leaks in cleaning transaction pool
+
+ * **Past attacks** 
   
 ## STRIDE Threat Trees
 
@@ -147,7 +167,15 @@ Complementary paths:
 ### 5. Denial of service
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   |
 |---|---|---|---|---|
-|   |   |   |   |   |
+| 5.1  | Posting invalid transactions  | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. | The node that receives a transactions validates this transaction. Invalid transactions are rejected and never propagated to other nodes. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.  |   |
+| 5.2  | Posting valid, but impossible transactions  | Validation is
+light-weight and ensures that if the transaction is accepted in a
+block candidate fee and gas can be paid.  | Valid transactions have a
+configurable TTL that determines how long a transaction may stay in
+the memory pool. By default a node is configured to have a transaction
+in the pool for at most 256 blocks.  |   |
+| 5.3  | Exploiting memory leaks in cleaning transaction pool  |
+Erlang is a garbage collected language _TODO: names as atoms_  |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
 
