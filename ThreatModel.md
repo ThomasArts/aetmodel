@@ -56,9 +56,31 @@ Complementary paths:
 * **Repudiation** - Claiming	to	have	not  performed an action.   
 * **Information disclosure** - Exposing information to someone not authorized to see it.  
 * **Denial of service** - Deny or	degrade service to users.  
-* **Elevation of privilege** -  Gain	capabiliLes without proper authorization
+* **Elevation of privilege** -  Gain	capabilities without proper authorization
  
 ###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks 
+
+####An attacker could steal a users private keys
+	* Users
+	* Miners
+	* Peers
+	* Oracles
+	* Contracts
+ * Multiple malicious actions possible (enumerate to build tree)
+ * **mitigation** ensure key never purposefully in the system
+ * **past attacks** ...
+ * Spoofing; Denial of Service;
+
+ 
+####Broadcasting fake transactions
+ * Invalid transactions - can be enabled by vulnerablities in the verification sw 
+ * Tampered transactions - e.g. executing actions in the name of a contract
+ * **mitigation** ensure key never purposefully in the system
+ * **past attacks** ...
+ * Denial of Service - only gossip valid transactions; "banning" users maybe implemented; information disclosure.
+ 
+
+
   
 ## STRIDE Threat Trees
 
