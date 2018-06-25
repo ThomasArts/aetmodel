@@ -62,6 +62,7 @@ Complementary paths:
 ###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks 
 
 ####========================================================
+
 ####(1) Spoofing: Spoof user actions
 
 ##### 1. Obtain private keys
@@ -119,9 +120,9 @@ potentially impact the rate in which correct transactions are
 accepted.
 Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this*  validated for each new block candidate.
 
-  (5.1) Posting invalid transactions
-  (5.2) Posting valid, but impossible transactions
-  (5.3) Exploiting memory leaks in cleaning transaction pool
+	  (5.1) Posting invalid transactions
+	  (5.2) Posting valid, but impossible transactions
+	  (5.3) Exploiting memory leaks in cleaning transaction pool
 
  * **Past attacks** 
   
