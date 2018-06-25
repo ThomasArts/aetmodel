@@ -62,6 +62,7 @@ Complementary paths:
 ###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks 
 
 ####========================================================
+
 ####(1) Spoofing: Spoof user actions
 
 ##### 1. Obtain private keys
@@ -106,8 +107,7 @@ Complementary paths:
 
 ####(5) Denial of service
 
-##### 1. Overloading with transactions	(1.1) At generation time.
-
+##### 1. Overloading with transactions
 Creating and posting a transaction is a computationally cheap action for an attacker. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.
 Valdiation of a transaction is computational cheap, but having to validate many transactions that cannot be included in a block, is a computational overhead for a node. If an attacker could
 post enormous amounts of transactions to the network, it could potentially impact the rate in which correct transactions are accepted.
