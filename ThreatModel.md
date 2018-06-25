@@ -61,6 +61,7 @@ Complementary paths:
  
 ###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks 
 
+####========================================================
 ####(1) Spoofing: Spoof user actions
 
 ##### 1. Obtain private keys
@@ -114,6 +115,8 @@ Complementary paths:
 |  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   |
 |  1.3 | Remote exploitation of client applications  | Penetration testing of client applications  | Exclude/ignore outdated clients (?) |  |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. Never send client logs unencrypted over public network |   |   |
+|  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   |
+|  3.1 |  Needs additional investigation |   |   |   |
 |   |   |   |   |   |
 |   |   |   |   |   |
 
