@@ -1,6 +1,18 @@
 # aetmodel
 Documentation of threat model
 
+## Definition
+
+**Client Node** is an aetherium node with no mining capability.
+
+**Penetration testing** (aka ***pentesting***) authorized simulated attack on a computer system, performed to evaluate the security of the target system. 
+The test aims to identify the target's strengths and vulnerabilities, including the potential for unauthorized parties to gain access to the system's software and data.
+
+**Miner Node** is an aetherium node with mining capability.
+
+**Node** is an aetherium node with a private key; includes miner nodes, client nodes, peers, etc.
+
+
 
 ## System Model 
 
@@ -70,7 +82,8 @@ Complementary paths:
 	(1.2) At rest / in storage.
 		(1.2.1) Local storage.
 		(1.2.2) Third-party storage (e.g. on-line wallets).  
-	(1.3) Client node run time. *** explain what a client node is ??***
+		(1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
+	(1.3) Node run time.
 	(1.4) At logging time.
 
  * **Past attacks** 
@@ -81,13 +94,14 @@ Complementary paths:
  	* [2017 | Ethereum | Bug in Parity wallet](https://www.theguardian.com/technology/2017/nov/08/cryptocurrency-300m-dollars-stolen-bug-ether)
  	* [2018 | Ethereum | Bug/misconfiguration in client node](https://thehackernews.com/2018/06/ethereum-geth-hacking.html) 
  	* [2018 | Ethereum | Conrail wallet exploit](https://mashable.com/2018/06/11/coinrail-exchange-hack/?europe=true)
+ 	* [2014 | Bitcoin | XSS wallet vulnerability](https://www.reddit.com/r/Bitcoin/comments/1n57uj/im_attempting_to_reach_a_security_contact_at/)
  * **Categories** Spoofing; Denial of Service.  
  ``` 
  info: "Categories" denote the threats where attacks listed in this branch may be applied;
  ```
 
 ##### 2. Exploit vulnerabilities in authentication code
-	(2.1) Exploit incomplete or otherwise flawed verification of signatures
+	(2.1) Exploit incomplete or otherwise flawed signature verification
         (2.1.1)  when validating transactions
  * **Past attacks** 
  	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
@@ -97,6 +111,7 @@ Complementary paths:
 	(3.1) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
  * **Past attacks** 
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
+
 
 ####Broadcasting fake transactions
  * Invalid transactions - can be enabled by vulnerablities in the verification sw 
@@ -128,13 +143,13 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 1.1  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions.  | TODO: verify that the user cannot accidentally use a key with less than 256 bits | low priority (unlikely) |
 |  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.2.3.     | Vulnerabilities in web services may allow an adversary to run and execute mailicious scripts on client nodes, potentially revealing the wallet| N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
 |  3.1 |  Needs additional investigation |   |   |   | |   |
-|   |   |   |   |   |  |  |
-|   |   |   |   |   |  |  |
+
 
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
