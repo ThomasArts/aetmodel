@@ -1,7 +1,11 @@
 # aetmodel
 Documentation of threat model
 
-## Definition
+## List of acronyms
+**OOS** Out of scope  
+**NTP** Network Time Protocol
+
+## Definitions
 
 **Client Node** is an aetherium node with no mining capability.
 
@@ -12,7 +16,7 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 
 **Node** is an aetherium node with a private key; includes miner nodes, client nodes, peers, etc.
 
-
+**Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
 
 ## System Model
 
@@ -131,24 +135,33 @@ Transactions may validate but nevertheless not be possible to include in a block
 	(5.1) Posting invalid transactions.
 	(5.2) Posting valid, but impossible transactions
 	(5.3) Exploiting memory leaks in cleaning transaction pool
-
+	(5.4) Exploiting network or communication vulnerabilities to degrade or deny service
+		(5.4.1) Launch an eclipse attack
+			(5.4.1.1) Eclipse by connection monopolization
+			(5.4.1.2) Eclipse by owning the table
+			(5.4.1.3) Eclipse by manipulating time
+	(5.5) Exploiting software vulnerabilities to degrade or deny service
+		(5.5.1) Improper Check for Unusual or Exceptional Condition
+		
  * **Past attacks**
+ 	* [2018 | Ethereum | Low-Resource Eclipse Attacks on Ethereum’s Peer-to-Peer Network (iacr eprint)](https://www.cs.bu.edu/~goldbe/projects/eclipseEth.pdf)
+ 	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
 
 ## STRIDE Threat Trees
 
-### 1. Component Spoofing
+### 1. (Node) Spoofing
 
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priotity |
 |---|---|---|---|---|---|---|
 | 1.1  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions.  | TODO: verify that the user cannot accidentally use a key with less than 256 bits | low priority (unlikely) |
 |  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.2.3.     | Vulnerabilities in web services may allow an adversary to run and execute mailicious scripts on client nodes, potentially revealing the wallet| N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.2.3.     | Vulnerabilities in web services may allow an adversary to run and execute mailicious scripts on client nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  3.1 |  Needs additional investigation |   |   |   | |   |
+|  3.1 |  DNS attack that rerouts users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
 
 
 ### 2. Tampering
@@ -178,8 +191,11 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 5.1  | Posting invalid transactions  | The node that receives a transaction validates this transaction. Invalid transactions are rejected and never propagated to other nodes.  | Handling the http request is more work than validating the transaction. By standard http load balancing the number of posted transactions is the limiting factor, rejecting the transactions is cheap. |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model  | medium |
 | 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
 | 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. | low |
-|   |   |   |   |   |   |   |
-|   |   |   |   |   |   |   |
+| 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |   |   |
+|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incomming connection requests  |  Needs further investigation |  Needs further investigation |   |   |   |
+|  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host  |  Needs further investigation | Needs further investigation  |   |   |   |
+|  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
+
 
 ### 6. Elevation of privilege
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes | Actions | Priority |
