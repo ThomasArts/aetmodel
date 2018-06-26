@@ -16,6 +16,9 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 
 **Node** is an aetherium node with a private key; includes miner nodes, client nodes, peers, etc.
 
+**Peer Node**  A node identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number. 
+**Predefined Peer Node** This is a set of peers that are automatically connected to upon node startup.
+
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
 
 ## System Model
@@ -136,16 +139,19 @@ Transactions may validate but nevertheless not be possible to include in a block
 	(5.2) Posting valid, but impossible transactions
 	(5.3) Exploiting memory leaks in cleaning transaction pool
 	(5.4) Exploiting network or communication vulnerabilities to degrade or deny service
-		(5.4.1) Launch an eclipse attack
+		(5.4.1) Launch Eclipse attacks against a node or a set of nodes
 			(5.4.1.1) Eclipse by connection monopolization
 			(5.4.1.2) Eclipse by owning the table
 			(5.4.1.3) Eclipse by manipulating time
+		(5.4.2) Network-wide attacks against the aetherium network
+			(5.4.2.1) Attacks to slow down the aetherium network 
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
 		
  * **Past attacks**
  	* [2018 | Ethereum | Low-Resource Eclipse Attacks on Ethereum’s Peer-to-Peer Network (iacr eprint)](https://www.cs.bu.edu/~goldbe/projects/eclipseEth.pdf)
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
+ 	* [2017 | Bitcoin | Hijacking Bitcoin: routing attacks on cryptocurrencies | ArXiv eprint](https://arxiv.org/pdf/1605.07524.pdf)
 
 ## STRIDE Threat Trees
 
@@ -191,9 +197,10 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 5.1  | Posting invalid transactions  | The node that receives a transaction validates this transaction. Invalid transactions are rejected and never propagated to other nodes.  | Handling the http request is more work than validating the transaction. By standard http load balancing the number of posted transactions is the limiting factor, rejecting the transactions is cheap. |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model  | medium |
 | 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
 | 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. | low |
-| 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |   |   |
-|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incomming connection requests  |  Needs further investigation |  Needs further investigation |   |   |   |
-|  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host  |  Needs further investigation | Needs further investigation  |   |   |   |
+| 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |  Attack shown for ETH - investigate relevance |   |
+|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incomming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance | |   
+|  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host |  Needs further investigation | Configure host to use secure/trusted NTP (esp. relevant for peers)  | |Attack shown for ETH - investigate relevance| |  
+| 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 
 
