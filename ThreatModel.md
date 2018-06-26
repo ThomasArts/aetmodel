@@ -14,9 +14,8 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 
 **Miner Node** is an aetherium node with mining capability.
 
-**Node** is an aetherium node with a private key; includes miner nodes, client nodes, peers, etc.
-
-**Peer Node**  A node identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number. 
+**Node** (aka ***Epoch node***, ***Peer node***) umbrella term for aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
+Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.   
 **Predefined Peer Node** This is a set of peers that are automatically connected to upon node startup.
 
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
@@ -126,19 +125,14 @@ Complementary paths:
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
 
-####Broadcasting fake transactions
- * Invalid transactions - can be enabled by vulnerablities in the verification sw
- * Tampered transactions - e.g. executing actions in the name of a contract
- * **mitigation** ensure key never purposefully in the system
- * **past attacks** ...
- * Denial of Service - only gossip valid transactions; "banning" users maybe implemented; information disclosure.
-
 ####(2) Tampering
 Tampering is closely related to spoofing and information disclosure.
 ##### 1. Channel tampering
     (2.1.1) No channel integrity
 	 (2.1.2) Weak channel integrity;
-	 	
+	 (2.1.3) Channel security compromise;
+	 
+	 	 
 ##### 2. Message tampering
     (2.2.1) No message integrity
 	 (2.2.1) Weak message integrity;
@@ -146,7 +140,7 @@ Tampering is closely related to spoofing and information disclosure.
 ##### 3. Time and ordering
 
 ##### 4. Block tampering
-	  (4.1.1) Block validity not verified 
+	  (4.1.1) Block validity not verified 	  
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
@@ -170,10 +164,10 @@ Transactions may validate but nevertheless not be possible to include in a block
 			(5.4.1.3) Eclipse by manipulating time
 			(5.4.1.4) Obtain node 'secret' used to determine peer selection from unverified pool
 		(5.4.2) Network-wide attacks against the aetherium network
-			(5.4.2.1) Attacks to slow down the aetherium network 
+			(5.4.2.1) Attacks to slow down the aetherium network
+		(5.4.3) Denial of Service against Predefined Peer Nodes
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
-	(5.6) Exploiting Protocol properties to degrade or deny service		(5.6.1) Improper Check for Unusual or Exceptional Condition
  * **Past attacks**
  	* [2018 | Ethereum | Low-Resource Eclipse Attacks on Ethereum’s Peer-to-Peer Network (iacr eprint)](https://www.cs.bu.edu/~goldbe/projects/eclipseEth.pdf)
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
@@ -194,8 +188,8 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  | Tunneling(?)  |  | |   |
-|  3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | |   |
+|  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
+|  3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
 |  3.2 |  DNS attack that rerouts users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
 
 
@@ -203,10 +197,12 @@ Transactions may validate but nevertheless not be possible to include in a block
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 2.1.1  | Channel integrity is not implemented | Ensure channel integrity |   |   |  Check Noise protocol |   |
-| 2.1.2  | Weak algorithms used to ensure channel integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |   |  Check Noise protocol |   |
-|  2.2.1 | Message integrity is not ensured  | Ensure message integrity   |   |   |  Check Noise protocol |   |
-|  2.2.2 | Message integrity is not ensured  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   |  Check Noise protocol |   |
+| 2.1.1  | Channel integrity is not implemented | Ensure channel integrity |   |   Prevented through use of Noise protocol |  Verify correct implementation using a QuickCheck model ||  
+| 2.1.2  | Weak algorithms used to ensure channel integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |Prevented through correct implementation of the Noise protocol |   Verify correct implementation using a QuickCheck model|   |  
+| 2.1.3  | Channel security compromise due to nonce wrap back | Ensure parties do not send more than 2^64 - 1 messages with the same session key  |  | |  Verify through code review (?) |   |  
+|  2.2.1 | Message integrity is not ensured  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
+|  2.2.2 | Message integrity is not ensured  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
+|  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
 
 
 
@@ -237,6 +233,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 |  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host |  Needs further investigation | Configure host to use secure/trusted NTP (esp. relevant for peers)  | |Attack shown for ETH - investigate relevance| |  
 |  5.4.1.4 | Eclipsing node by influencing peer selection from unverified pool; assumes obtaining 'secret' used for peer selection |  Needs further investigation | Needs further investigation  | |Secret generation, storage and usage is [undocumented](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#bucket-selection) | |  
 | 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
+| 5.4.3  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 
 
