@@ -58,6 +58,9 @@ Paying more than a minimum fee is possible.
 
 Blockchain-ng - selecting a leader who can mine the blockchain, until the next leader is elected.
 
+## Previous Work on Threat Model
+
+Some work on building the thread model for aeternity [has already been done](https://github.com/aeternity/protocol/blob/master/SYNC.md#threat-model).
 
 ## Assets
 **Assets** describe are the valuable data that the business cares about
@@ -66,7 +69,7 @@ Blockchain-ng - selecting a leader who can mine the blockchain, until the next l
 
 **Assumptions** about the system model and about the way users will interact with the system
 
-## Threat Modelling
+## Threat Model
 
 Complementary paths:  
 ###1. Use the **STRIDE** model to threat modelling:   
@@ -115,7 +118,10 @@ Complementary paths:
 	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
 
 ##### 3. Exploit vulnerabilities in network communication
-	(3.1) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
+    (3.1) Packet spoofing
+    	(3.1.1) On-path packet injection
+    	(3.1.2) Blind packet injection    
+	 (3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
  * **Past attacks**
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
@@ -126,6 +132,25 @@ Complementary paths:
  * **mitigation** ensure key never purposefully in the system
  * **past attacks** ...
  * Denial of Service - only gossip valid transactions; "banning" users maybe implemented; information disclosure.
+
+####(2) Tampering
+Tampering is closely related to spoofing and information disclosure.
+##### 1. Channel tampering
+    (2.1.1) No channel integrity
+	 (2.1.2) Weak channel integrity;
+	 	
+##### 2. Message tampering
+    (2.2.1) No message integrity
+	 (2.2.1) Weak message integrity;
+	 
+##### 3. Time and ordering
+
+##### 4. Block tampering
+	  (4.1.1) Block validity not verified 
+* **Related info**
+	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
+
+
 
 ####(5) Denial of service
 
@@ -143,16 +168,18 @@ Transactions may validate but nevertheless not be possible to include in a block
 			(5.4.1.1) Eclipse by connection monopolization
 			(5.4.1.2) Eclipse by owning the table
 			(5.4.1.3) Eclipse by manipulating time
+			(5.4.1.4) Obtain node 'secret' used to determine peer selection from unverified pool
 		(5.4.2) Network-wide attacks against the aetherium network
 			(5.4.2.1) Attacks to slow down the aetherium network 
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
-		
+	(5.6) Exploiting Protocol properties to degrade or deny service		(5.6.1) Improper Check for Unusual or Exceptional Condition
  * **Past attacks**
  	* [2018 | Ethereum | Low-Resource Eclipse Attacks on Ethereum’s Peer-to-Peer Network (iacr eprint)](https://www.cs.bu.edu/~goldbe/projects/eclipseEth.pdf)
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
- 	* [2017 | Bitcoin | Hijacking Bitcoin: routing attacks on cryptocurrencies | ArXiv eprint](https://arxiv.org/pdf/1605.07524.pdf)
-
+ 	* [2017 | Bitcoin | Hijacking Bitcoin: routing attacks on cryptocurrencies | IEEE S&P](https://btc-hijack.ethz.ch/)
+ 	
+ 	
 ## STRIDE Threat Trees
 
 ### 1. (Node) Spoofing
@@ -167,15 +194,22 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  3.1 |  DNS attack that rerouts users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
+|  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  | Tunneling(?)  |  | |   |
+|  3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | |   |
+|  3.2 |  DNS attack that rerouts users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
+
 
 
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-|   |   |   |   |   |   |   |
-|   |   |   |   |   |   |   |
-|   |   |   |   |   |   |   |
+| 2.1.1  | Channel integrity is not implemented | Ensure channel integrity |   |   |  Check Noise protocol |   |
+| 2.1.2  | Weak algorithms used to ensure channel integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |   |  Check Noise protocol |   |
+|  2.2.1 | Message integrity is not ensured  | Ensure message integrity   |   |   |  Check Noise protocol |   |
+|  2.2.2 | Message integrity is not ensured  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   |  Check Noise protocol |   |
+
+
+
 
 ### 3. Repudiation
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
@@ -183,6 +217,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 |   |   |   |   |   |   |   |
 |   |   |   |   |   |   |   |
 |   |   |   |   |   |   |   |
+
 
 ### 4. Information Disclosure
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
@@ -197,9 +232,10 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 5.1  | Posting invalid transactions  | The node that receives a transaction validates this transaction. Invalid transactions are rejected and never propagated to other nodes.  | Handling the http request is more work than validating the transaction. By standard http load balancing the number of posted transactions is the limiting factor, rejecting the transactions is cheap. |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model  | medium |
 | 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
 | 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. | low |
-| 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |  Attack shown for ETH - investigate relevance |   |
-|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incomming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance | |   
+| 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |  Attack shown for ETH - investigate relevance see [Persistence](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#persistence) |   |
+|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incomming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance; see [Peer Maintenance](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#peers-maintenance)| |   
 |  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host |  Needs further investigation | Configure host to use secure/trusted NTP (esp. relevant for peers)  | |Attack shown for ETH - investigate relevance| |  
+|  5.4.1.4 | Eclipsing node by influencing peer selection from unverified pool; assumes obtaining 'secret' used for peer selection |  Needs further investigation | Needs further investigation  | |Secret generation, storage and usage is [undocumented](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#bucket-selection) | |  
 | 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 
