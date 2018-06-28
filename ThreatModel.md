@@ -92,6 +92,9 @@ Complementary paths:
 		(1.2.1) Local storage.
 		(1.2.2) Third-party storage (e.g. on-line wallets).  
 		(1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
+		(1.2.4) By neighbours on shared infrastructure.
+		(1.2.5) By operator of virtualized infrastructure.
+		(1.2.6) By malicious apps on mobile devices.
 	(1.3) Node run time.
 	(1.4) At logging time.
 
@@ -132,14 +135,14 @@ Tampering is closely related to spoofing and information disclosure.
 	 (2.1.2) Weak channel integrity;
 	 (2.1.3) Channel security compromise;
 	 
-	 	 
 ##### 2. Message tampering
 	(2.2) Verification of message integrity
     (2.2.1) No message integrity
 	 (2.2.1) Weak message integrity;
 	 
 ##### 3. Time and ordering
-    
+    (2.3) Tampering with the ordering of transactions included in a block
+     
 
 ##### 4. Block tampering
 	  (2.4) Verification of block validity
@@ -194,7 +197,10 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 1.1  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions.  | TODO: verify that the user cannot accidentally use a key with less than 256 bits | low priority (unlikely) |
 |  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.2.3.     | Vulnerabilities in web services may allow an adversary to run and execute mailicious scripts on client nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.2.3     | Vulnerabilities in web services may allow an adversary to run and execute mailicious scripts on client nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes | API for storing keys in a hardware enclave / on external device |  N/A | | May be difficult to solve | |
+|1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers | API for storing keys in a hardware enclave |  N/A | | Difficult to solve | |
+|1.2.6  | Malicious mobile applications with access to file sysstem may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A | | This migh be very specific (and highly relevant) to Aetherium since it envisions that mobile devices could/will run full nodes | |
 |  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
@@ -202,7 +208,6 @@ Transactions may validate but nevertheless not be possible to include in a block
 |  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
 |  3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
 |  3.2 |  DNS attack that rerouts users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
-
 
 
 ### 2. Tampering
@@ -214,6 +219,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 |  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
 |  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
 |  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
+|  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implmenetation | Protocol incentived to prevent transaction reordering  |   |  Discuss whether this is a threat |   |
 |  2.4.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.4.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.5.1 | Nodes do not verify transaction validity  | Correct implementation of transaction validity verification in node implementation |  Protocol incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
