@@ -134,6 +134,7 @@ Tampering is closely related to spoofing and information disclosure.
 	 
 	 	 
 ##### 2. Message tampering
+	(2.2) Verification of message integrity
     (2.2.1) No message integrity
 	 (2.2.1) Weak message integrity;
 	 
@@ -141,8 +142,16 @@ Tampering is closely related to spoofing and information disclosure.
     
 
 ##### 4. Block tampering
-	  (4.1.1) No verification of block validity
-	  (4.1.2) Weak verification of block validity	   	  
+	  (2.4) Verification of block validity
+		  (2.4.1) No verification of block validity
+		  (2.4.2) Weak verification of block validity
+
+##### 5. Transaction tampering
+	  (2.5) Verification of transaction validity
+	  	  (2.5.1) No verification of transaction validity
+		  (2.5.2) Weak verification of transaction validity
+		  (2.5.3) Violation of transaction integrity by a node prior to including in a block
+
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
@@ -201,13 +210,15 @@ Transactions may validate but nevertheless not be possible to include in a block
 |---|---|---|---|---|---|---|
 | 2.1.1  | Channel integrity is not implemented | Ensure channel integrity |   |   Prevented through use of Noise protocol |  Verify correct implementation using a QuickCheck model ||  
 | 2.1.2  | Weak algorithms used to ensure channel integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |Prevented through correct implementation of the Noise protocol |   Verify correct implementation using a QuickCheck model|   |  
-| 2.1.3  | Channel security compromise due to nonce wrap back | Ensure parties do not send more than 2^64 - 1 messages with the same session key  |  | |  Verify through code review (?) |   |  
-|  2.2.1 | Message integrity is not ensured  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
-|  2.2.2 | Message integrity is not ensured  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
+| 2.1.3  | Channel security compromised due to nonce wrap back | Ensure parties do not send more than 2^64 - 1 messages with the same session key  |  | |  Verify through code review (?) |   |  
+|  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
+|  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
 |  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
-|  4.1.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
-|  4.1.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
-
+|  2.4.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
+|  2.4.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
+|  2.5.1 | Nodes do not verify transaction validity  | Correct implementation of transaction validity verification in node implementation |  Protocol incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
+|  2.5.2 | Nodes verify transaction validity, but verification implementation is incomplete or flawed  | Correct implementation of transaction validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
+|  2.5.3 | Nodes modify transaction prior to including it in a block  | | Protocol incentives preventing nodes from modifying transactions  |   |  Verify correct implementation using a QuickCheck model |   |
 
 
 ### 3. Repudiation
