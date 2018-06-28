@@ -138,9 +138,11 @@ Tampering is closely related to spoofing and information disclosure.
 	 (2.2.1) Weak message integrity;
 	 
 ##### 3. Time and ordering
+    
 
 ##### 4. Block tampering
-	  (4.1.1) Block validity not verified 	  
+	  (4.1.1) No verification of block validity
+	  (4.1.2) Weak verification of block validity	   	  
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
@@ -203,7 +205,8 @@ Transactions may validate but nevertheless not be possible to include in a block
 |  2.2.1 | Message integrity is not ensured  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
 |  2.2.2 | Message integrity is not ensured  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
 |  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
-
+|  4.1.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
+|  4.1.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
 
 
 
