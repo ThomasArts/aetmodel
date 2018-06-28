@@ -2,9 +2,10 @@
 Documentation of threat model
 
 ## List of acronyms
-**OOS** Out of scope  
-**NTP** Network Time Protocol
-
+**OOS** Out Of Scope  
+**PRNG** Pseudo-Random Number Generator   
+**NTP** Network Time Protocol   
+**XSS** Cross-Site Scripting (exploit)
 ## Definitions
 
 **Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. 
@@ -72,7 +73,10 @@ Some work on building the thread model for aeternity [has already been done](htt
 
 ## Assumptions
 
-**Assumptions** about the system model and about the way users will interact with the system
+**Assumptions** about the system model and about the way users will interact with the system.  
+	1. **A node's private key** is the only data that must remain secret at all times.
+	2. **The user model is completely flat**, there is only one type of users in the system, all users have equal privileges.
+
 
 ## Threat Model
 
@@ -170,6 +174,18 @@ Tampering is closely related to spoofing and information disclosure.
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
+####(3) Repudiation
+To be addressed once a better understanding of the bitcoin-NG and epoch protocols is reached.
+
+
+####(4) Information Disclosure
+
+Considering that all information added to the blockchain is public, the scope of information disclosure is significantly reduced.
+
+The working assumption is that the only data that must remain secret at all times is the private key of the node (see Assumptions above).
+The threats to the confidentiality and integrity of the node private key are listed in the ***Spoofing*** threat tree.
+
+Hence, if the assumption is correct, the information disclosure threat tree is a subtree of the ***Spoofing*** threat tree
 
 
 ####(5) Denial of service
@@ -194,7 +210,8 @@ Transactions may validate but nevertheless not be possible to include in a block
 		(5.4.3) Denial of Service against Predefined Peer Nodes
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
-	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service		(5.6.1) Refusing to cooperate after having opened the channel;  
+	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service. 
+	  	(5.6.1) Refusing to cooperate after having opened the channel;  
 		(5.6.2) Refusing to sign a multi-party transaction;
 		(5.6.3) Open channels up to the full capacity of the node;
 	
@@ -205,6 +222,10 @@ Transactions may validate but nevertheless not be possible to include in a block
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
  	* [2017 | Bitcoin | Hijacking Bitcoin: routing attacks on cryptocurrencies | IEEE S&P](https://btc-hijack.ethz.ch/)
  	
+####(6) Elevation of privilege
+The working assumption is that the user model is flat, i.e. there is no difference between the privileges of any two nodes.
+Hence, if the assumption is correct, the elevation of privilege threat tree only applies to underlying environment and is orthogonal to the software developed in this project project.
+
  	
 ## STRIDE Threat Trees
 
@@ -274,7 +295,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 | 5.4.3  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
-|  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |   |
+|  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, [locking up coins](https://github.com/aeternity/protocol/tree/master/channels#incentives) and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |   |
 |  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel. |  Needs further investigation |  |  |
 |  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
 
