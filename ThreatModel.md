@@ -7,15 +7,19 @@ Documentation of threat model
 
 ## Definitions
 
+**Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection.  
 **Client Node** is an aetherium node with no mining capability.
 
-**Penetration testing** (aka ***pentesting***) authorized simulated attack on a computer system, performed to evaluate the security of the target system. 
-The test aims to identify the target's strengths and vulnerabilities, including the potential for unauthorized parties to gain access to the system's software and data.
 
 **Miner Node** is an aetherium node with mining capability.
 
-**Node** (aka ***Epoch node***, ***Peer node***) umbrella term for aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
-Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.   
+**Node** (aka **Epoch node***) umbrella term for aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
+Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.  
+
+
+**Peer Node** [is a node participating in a channel](https://github.com/aeternity/protocol/tree/master/channels#terms).  
+**Penetration testing** (aka ***pentesting***) authorized simulated attack on a computer system, performed to evaluate the security of the target system. 
+The test aims to identify the target's strengths and vulnerabilities, including the potential for unauthorized parties to gain access to the system's software and data.  
 **Predefined Peer Node** This is a set of peers that are automatically connected to upon node startup.
 
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
@@ -150,7 +154,6 @@ Tampering is closely related to spoofing and information disclosure.
 ##### 3. Time and ordering
     (2.3) Tampering with the ordering of transactions included in a block
      
-
 ##### 4. Block tampering
 	  (2.4) Verification of block validity
 		  (2.4.1) No verification of block validity
@@ -189,6 +192,12 @@ Transactions may validate but nevertheless not be possible to include in a block
 		(5.4.3) Denial of Service against Predefined Peer Nodes
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
+	(5.6) Exploiting protocol vulnerabilities to degrade or deny service		(5.6.1) Refusing to cooperate after having opened the channel;
+		(5.6.2) Refusing to sign a multi-party transaction;
+	
+	
+	
+	
  * **Past attacks**
  	* [2018 | Ethereum | Low-Resource Eclipse Attacks on Ethereum’s Peer-to-Peer Network (iacr eprint)](https://www.cs.bu.edu/~goldbe/projects/eclipseEth.pdf)
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
@@ -205,7 +214,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 1.1.2  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
 |  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.2.3     | Vulnerabilities in web services may allow an adversary to run and execute mailicious scripts on client nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.2.3     | Vulnerabilities in web services may allow an adversary to execute code on nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes | API for storing keys in a hardware enclave / on external device |  N/A | May be difficult to solve|  | |
 |1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers | API for storing keys in a hardware enclave |  N/A |  Difficult to solve | | |
 |1.2.6  | Malicious mobile applications with access to file sysstem may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This migh be very specific (and highly relevant) to Aetherium since it envisions that mobile devices could/will run Epoch nodes | | |
@@ -263,6 +272,14 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 | 5.4.3  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
+|  5.6.1 | Adversary can open a channel with a peer and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
+|  5.6.2 | The adversary could refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel. |  Needs further investigation |  |  |
+
+
+ * **Past attacks/Background infromation**
+ 	* [2018 | Aeternity state channel incentives](https://github.com/aeternity/protocol/tree/master/channels#incentives)
+
+
 
 
 ### 6. Elevation of privilege
