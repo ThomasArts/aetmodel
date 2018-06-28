@@ -7,8 +7,10 @@ Documentation of threat model
 
 ## Definitions
 
-**Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection.  
+**Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. 
 **Client Node** is an aetherium node with no mining capability.
+**Connection** is a communication channel between two peers. 
+A connection can be multiplexed into multiple channels using the ***temporary\_channel\_id*** label.
 
 
 **Miner Node** is an aetherium node with mining capability.
@@ -141,10 +143,10 @@ Complementary paths:
 
 ####(2) Tampering
 Tampering is closely related to spoofing and information disclosure.
-##### 1. Channel tampering
-    (2.1.1) No channel integrity
-	 (2.1.2) Weak channel integrity;
-	 (2.1.3) Channel security compromise;
+##### 1. Connection tampering
+    (2.1.1) No connection integrity
+	 (2.1.2) Weak connection integrity;
+	 (2.1.3) Connection security compromise;
 	 
 ##### 2. Message tampering
 	(2.2) Verification of message integrity
@@ -176,7 +178,7 @@ Tampering is closely related to spoofing and information disclosure.
 Creating and posting a transaction is a computationally cheap action for an attacker. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.
 Validation of a transaction is computational cheap, but having to validate many transactions that cannot be included in a block, is a computational overhead for a node. If an attacker could
 post enormous amounts of transactions to the network, it could potentially impact the rate in which correct transactions are accepted.
-Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this*  validated for each new block candidate.  
+Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this* validated for each new block candidate.  
 
 	(5.1) Posting invalid transactions.
 	(5.2) Posting valid, but impossible transactions
@@ -192,9 +194,9 @@ Transactions may validate but nevertheless not be possible to include in a block
 		(5.4.3) Denial of Service against Predefined Peer Nodes
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
-	(5.6) Exploiting protocol vulnerabilities to degrade or deny service		(5.6.1) Refusing to cooperate after having opened the channel;
+	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service		(5.6.1) Refusing to cooperate after having opened the channel;  
 		(5.6.2) Refusing to sign a multi-party transaction;
-	
+		(5.6.3) Open channels up to the full capacity of the node;
 	
 	
 	
@@ -230,9 +232,9 @@ Transactions may validate but nevertheless not be possible to include in a block
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 2.1.1  | Channel integrity is not implemented | Ensure channel integrity |   |   Prevented through use of Noise protocol |  Verify correct implementation using a QuickCheck model ||  
-| 2.1.2  | Weak algorithms used to ensure channel integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |Prevented through correct implementation of the Noise protocol |   Verify correct implementation using a QuickCheck model|   |  
-| 2.1.3  | Channel security compromised due to nonce wrap back | Ensure parties do not send more than 2^64 - 1 messages with the same session key  |  | |  Verify through code review (?) |   |  
+| 2.1.1  | Connection integrity is not implemented | Ensure channel integrity |   |   Prevented through use of Noise protocol |  Verify correct implementation using a QuickCheck model ||  
+| 2.1.2  | Weak algorithms used to ensure connection integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |Prevented through correct implementation of the Noise protocol |   Verify correct implementation using a QuickCheck model|   |  
+| 2.1.3  | Connection security compromised due to nonce wrap back | Ensure parties do not send more than 2^64 - 1 messages with the same session key  |  | Consider that a connection can be [multiplexed](https://github.com/aeternity/protocol/tree/master/channels#high-level-overview) into long-lived channels |  Verify through code review (?) |   |  
 |  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
 |  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
 |  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
@@ -272,13 +274,14 @@ Transactions may validate but nevertheless not be possible to include in a block
 | 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 | 5.4.3  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
-|  5.6.1 | Adversary can open a channel with a peer and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
-|  5.6.2 | The adversary could refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel. |  Needs further investigation |  |  |
+|  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |   |
+|  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel. |  Needs further investigation |  |  |
+|  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
 
 
  * **Past attacks/Background infromation**
  	* [2018 | Aeternity state channel incentives](https://github.com/aeternity/protocol/tree/master/channels#incentives)
-
+	* [2018 | Aeternity state channel fees](https://github.com/aeternity/protocol/tree/master/channels#fees)
 
 
 
