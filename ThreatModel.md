@@ -95,7 +95,7 @@ Complementary paths:
 
 ####========================================================
 
-####(1) Spoofing: Spoof user actions
+### (1) Spoofing: Spoof user actions
 
 ##### 1. Obtain private keys
 	(1.1) At generation time.
@@ -146,21 +146,21 @@ Complementary paths:
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
 
-####(2) Tampering
+### (2) Tampering
 Tampering is closely related to spoofing and information disclosure.
 ##### 1. Connection tampering
     (2.1.1) No connection integrity
 	 (2.1.2) Weak connection integrity;
 	 (2.1.3) Connection security compromise;
-	 
+
 ##### 2. Message tampering
 	(2.2) Verification of message integrity
     (2.2.1) No message integrity
 	 (2.2.1) Weak message integrity;
-	 
+
 ##### 3. Time and ordering
     (2.3) Tampering with the ordering of transactions included in a block
-     
+
 ##### 4. Block tampering
 	  (2.4) Verification of block validity
 		  (2.4.1) No verification of block validity
@@ -175,21 +175,21 @@ Tampering is closely related to spoofing and information disclosure.
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
-####(3) Repudiation
+### (3) Repudiation
 To be addressed once a better understanding of the bitcoin-NG and epoch protocols is reached.
 
 
-####(4) Information Disclosure
+### (4) Information Disclosure
 
 Considering that all information added to the blockchain is public, the scope of information disclosure is significantly reduced.
 
-The working assumption is that the only data that must remain secret at all times is the private key of the node (see Assumptions above).
-The threats to the confidentiality and integrity of the node private key are listed in the ***Spoofing*** threat tree.
+The working assumption is that the only data that must remain secret at all times are the private keys of nodes (see Assumptions above) and the private keys of the accounts, oracles, and contracts.
+The threats to the confidentiality and integrity of the node private keys are listed in the ***Spoofing*** threat tree.
 
 Hence, if the assumption is correct, the information disclosure threat tree is a subtree of the ***Spoofing*** threat tree
 
 
-####(5) Denial of service
+### (5) Denial of service
 
 ##### 1. Overloading with transactions
 Creating and posting a transaction is a computationally cheap action for an attacker. A valid transaction is a transaction that can potentially be included in a future block and that a miner receives a fee for.
@@ -206,28 +206,30 @@ Transactions may validate but nevertheless not be possible to include in a block
 			(5.4.1.2) Eclipse by owning the table
 			(5.4.1.3) Eclipse by manipulating time
 			(5.4.1.4) Obtain node 'secret' used to determine peer selection from unverified pool
-		(5.4.2) Network-wide attacks against the aetherium network
-			(5.4.2.1) Attacks to slow down the aetherium network
+		(5.4.2) Network-wide attacks against the Aeternity network
+			(5.4.2.1) Attacks to slow down the Aeternity network
 		(5.4.3) Denial of Service against Predefined Peer Nodes
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
-	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service. 
+	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service.
 	  	(5.6.1) Refusing to cooperate after having opened the channel;  
 		(5.6.2) Refusing to sign a multi-party transaction;
 		(5.6.3) Open channels up to the full capacity of the node;
-	
-	
-	
+
+
+
  * **Past attacks**
  	* [2018 | Ethereum | Low-Resource Eclipse Attacks on Ethereum’s Peer-to-Peer Network (iacr eprint)](https://www.cs.bu.edu/~goldbe/projects/eclipseEth.pdf)
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
  	* [2017 | Bitcoin | Hijacking Bitcoin: routing attacks on cryptocurrencies | IEEE S&P](https://btc-hijack.ethz.ch/)
- 	
-####(6) Elevation of privilege
-The working assumption is that the user model is flat, i.e. there is no difference between the privileges of any two nodes.
-Hence, if the assumption is correct, the elevation of privilege threat tree only applies to underlying environment and is orthogonal to the software developed in this project project.
 
- 	
+### (6) Elevation of privilege
+The working assumption is that the user model is flat, i.e. there is no difference between the privileges of any two nodes.
+Hence, if the assumption is correct, the elevation of privilege threat tree only applies to underlying environment and is orthogonal to the software developed in this project.
+
+**discuss** As long as the network is small, there is a concept of Aeternity owned nodes that would be more "trustable" than other nodes. In the beginning it might be important to prevent a small different subset of nodes to take the role as trusted set to connect to.
+
+
 ## STRIDE Threat Trees
 
 ### 1. (Node) Spoofing
@@ -241,14 +243,14 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |1.2.3     | Vulnerabilities in web services may allow an adversary to execute code on nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes | API for storing keys in a hardware enclave / on external device |  N/A | May be difficult to solve|  | |
 |1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers | API for storing keys in a hardware enclave |  N/A |  Difficult to solve | | |
-|1.2.6  | Malicious mobile applications with access to file sysstem may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This migh be very specific (and highly relevant) to Aetherium since it envisions that mobile devices could/will run Epoch nodes | | |
+|1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
 |  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
 |  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
 |  3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
-|  3.2 |  DNS attack that rerouts users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
+|  3.2 |  DNS attack that reroutes users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
 
 
 ### 2. Tampering
@@ -260,7 +262,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
 |  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
 |  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
-|  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implmenetation | Protocol incentived to prevent transaction reordering  |   |  Discuss whether this is a threat |   |
+|  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implementation | Protocol uses incentive to prevent transaction reordering  |   |  Discuss whether this is a threat |   |
 |  2.4.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.4.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.5.1 | Nodes do not verify transaction validity  | Correct implementation of transaction validity verification in node implementation |  Protocol incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
@@ -288,12 +290,12 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |---|---|---|---|---|---|---|
 | 5.1  | Posting invalid transactions  | The node that receives a transaction validates this transaction. Invalid transactions are rejected and never propagated to other nodes.  | Handling the http request is more work than validating the transaction. By standard http load balancing the number of posted transactions is the limiting factor, rejecting the transactions is cheap. |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model  | medium |
 | 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
-| 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. | low |
+| 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. Verify memory constraints on transaction pool | low |
 | 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |  Attack shown for ETH - investigate relevance see [Persistence](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#persistence) |   |
-|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incomming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance; see [Peer Maintenance](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#peers-maintenance)| |   
+|  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incoming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance; see [Peer Maintenance](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#peers-maintenance)| |   
 |  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host |  Needs further investigation | Configure host to use secure/trusted NTP (esp. relevant for peers)  | |Attack shown for ETH - investigate relevance| |  
 |  5.4.1.4 | Eclipsing node by influencing peer selection from unverified pool; assumes obtaining 'secret' used for peer selection |  Needs further investigation | Needs further investigation  | |Secret generation, storage and usage is [undocumented](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#bucket-selection) | |  
-| 5.4.2.1  | Slow down the aetherium network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
+| 5.4.2.1  | Slow down the Aeternity network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 | 5.4.3  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 |  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, [locking up coins](https://github.com/aeternity/protocol/tree/master/channels#incentives) and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |   |
@@ -301,7 +303,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
 
 
- * **Past attacks/Background infromation**
+ * **Past attacks/Background information**
  	* [2018 | Aeternity state channel incentives](https://github.com/aeternity/protocol/tree/master/channels#incentives)
 	* [2018 | Aeternity state channel fees](https://github.com/aeternity/protocol/tree/master/channels#fees)
 
