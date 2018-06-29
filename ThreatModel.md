@@ -8,22 +8,22 @@ Documentation of threat model
 **XSS** Cross-Site Scripting (exploit)
 ## Definitions
 
-**Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. 
-**Client Node** is an aetherium node with no mining capability.
-**Connection** is a communication channel between two peers. 
-A connection can be multiplexed into multiple channels using the ***temporary\_channel\_id*** label.
+**State Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple state channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. Epoch nodes come with a state channel web-service API as a reference implementation.
+**Client Node** is an Aeternity node with no mining capability.
 
 
-**Miner Node** is an aetherium node with mining capability.
 
-**Node** (aka **Epoch node***) umbrella term for aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
+**Miner Node** is an Aeternity node with mining capability.
+
+**Node** (aka **Epoch node***) umbrella term for Aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
 Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.  
 
+**Connection** is a communication channel between two nodes peers. There is only one connection between each two peers.
 
 **Peer Node** [is a node participating in a channel](https://github.com/aeternity/protocol/tree/master/channels#terms).  
-**Penetration testing** (aka ***pentesting***) authorized simulated attack on a computer system, performed to evaluate the security of the target system. 
+**Penetration testing** (aka ***pentesting***) authorized simulated attack on a computer system, performed to evaluate the security of the target system.
 The test aims to identify the target's strengths and vulnerabilities, including the potential for unauthorized parties to gain access to the system's software and data.  
-**Predefined Peer Node** This is a set of peers that are automatically connected to upon node startup.
+**Predefined Peer Node** This is a peer that is automatically connected to upon node startup.
 
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
 
