@@ -34,10 +34,11 @@ It abstracts the details and allows to define the trust boundaries and state cha
 
 General blockchain, allowing whatever actions on the blockchain.
 
-Different from BitCoin in that it has many more options and that it introduces an oracle.
-Many more transactions possible than in BitCoin, faster in 2 ways:  
-	* Faster block rate  
-	* Offline state channels (micro-payments per second)
+Different from BitCoin in that it has many more options and that it introduces oracles, name registration, contracts and state-channels.
+Many more transactions possible than in BitCoin, faster in 3 ways:  
+	* Faster block rate
+  * Bitcoin-NG technology with key-blocks and micro-blocks
+	* Off-chain state channels (micro-payments per second)
 
 
 If there are too many transactions, some transaction might be stuck in the pool.  
@@ -62,11 +63,11 @@ High-level features:
 This is a community blockchain, minimum fees depending on a vote.
 Paying more than a minimum fee is possible.
 
-Blockchain-ng - selecting a leader who can mine the blockchain, until the next leader is elected.
+bitcoin-NG - selecting a leader who can mine the blockchain, until the next leader is elected.
 
 ## Previous Work on Threat Model
 
-Some work on building the thread model for aeternity [has already been done](https://github.com/aeternity/protocol/blob/master/SYNC.md#threat-model).
+Some work on building the thread model for Aeternity [has already been done](https://github.com/aeternity/protocol/blob/master/SYNC.md#threat-model).
 
 ## Assets
 **Assets** describe are the valuable data that the business cares about
