@@ -110,6 +110,7 @@ Complementary paths:
 		(1.2.6) By malicious apps on mobile devices.
 	(1.3) Node run time.
 	(1.4) At logging time.
+	(1.5) In error messages.
 
 
  * **Past attacks**
@@ -132,16 +133,16 @@ Complementary paths:
 
 ##### 2. Exploit vulnerabilities in authentication code
 	(2.1) Exploit incomplete or otherwise flawed signature verification
-        (2.1.1)  when validating transactions
+		(2.1.1)  when validating transactions
  * **Past attacks**
  	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
 	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
 
 ##### 3. Exploit vulnerabilities in network communication
-    (3.1) Packet spoofing
-    	(3.1.1) On-path packet injection
-    	(3.1.2) Blind packet injection    
-	 (3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
+	(3.1) Packet spoofing
+		(3.1.1) On-path packet injection
+		(3.1.2) Blind packet injection    
+	(3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
  * **Past attacks**
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
@@ -149,28 +150,29 @@ Complementary paths:
 ### (2) Tampering
 Tampering is closely related to spoofing and information disclosure.
 ##### 1. Connection tampering
-    (2.1.1) No connection integrity
-	 (2.1.2) Weak connection integrity;
-	 (2.1.3) Connection security compromise;
+	(2.1.1) No connection integrity
+		(2.1.2) Weak connection integrity;
+		(2.1.3) Connection security compromise;
 
 ##### 2. Message tampering
 	(2.2) Verification of message integrity
-    (2.2.1) No message integrity
-	 (2.2.1) Weak message integrity;
+		(2.2.1) No message integrity
+		(2.2.2) Weak message integrity;
 
 ##### 3. Time and ordering
-    (2.3) Tampering with the ordering of transactions included in a block
+	(2.3) Tampering with the ordering of transactions included in a block
+		(2.3.1) Tampering the timestamp in mined blocks
 
 ##### 4. Block tampering
-	  (2.4) Verification of block validity
-		  (2.4.1) No verification of block validity
-		  (2.4.2) Weak verification of block validity
+	(2.4) Verification of block validity
+		(2.4.1) No verification of block validity
+		(2.4.2) Weak verification of block validity
 
 ##### 5. Transaction tampering
-	  (2.5) Verification of transaction validity
-	  	  (2.5.1) No verification of transaction validity
-		  (2.5.2) Weak verification of transaction validity
-		  (2.5.3) Violation of transaction integrity by a node prior to including in a block
+	(2.5) Verification of transaction validity
+		(2.5.1) No verification of transaction validity
+		(2.5.2) Weak verification of transaction validity
+		(2.5.3) Violation of transaction integrity by a node prior to including in a block
 
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
@@ -188,6 +190,19 @@ The threats to the confidentiality and integrity of the node private keys are li
 
 Hence, if the assumption is correct, the information disclosure threat tree is a subtree of the ***Spoofing*** threat tree
 
+NoTE: double check threat by leaking key information by tampering key and then catching error messages in crash log like this one:
+
+```erlang
+sign(Tx, PrivKeys) when is_list(PrivKeys) ->
+    Bin = aetx:serialize_to_binary(Tx),
+    case lists:filter(fun(PrivKey) -> not (?VALID_PRIVK(PrivKey)) end, PrivKeys) of
+        [_|_]=BrokenKeys -> erlang:error({invalid_priv_key, BrokenKeys});
+        [] -> pass
+    end,
+    Signatures = sign_bin(Bin, PrivKeys),
+    #signed_tx{tx = Tx, signatures = Signatures}.
+```
+If somehow we provide 2 private keys with one valid and one broken, the valid key will appear in the log.
 
 ### (5) Denial of service
 
@@ -212,7 +227,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
 	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service.
-	  	(5.6.1) Refusing to cooperate after having opened the channel;  
+		(5.6.1) Refusing to cooperate after having opened the channel;  
 		(5.6.2) Refusing to sign a multi-party transaction;
 		(5.6.3) Open channels up to the full capacity of the node;
 
@@ -246,6 +261,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
 |  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
+| 1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check error messages | priority medium |
 |  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
 |  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
