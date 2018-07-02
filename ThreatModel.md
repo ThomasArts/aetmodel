@@ -74,9 +74,13 @@ Some work on building the thread model for Aeternity [has already been done](htt
 
 ## Assumptions
 
-**Assumptions** about the system model and about the way users will interact with the system.  
-	1. **A node's private key** is the only data that must remain secret at all times.
-	2. **The user model is completely flat**, there is only one type of users in the system, all users have equal privileges.
+**Assumptions** about the system model and about the way users will interact with the system.
+
+1. **A node's private key** is the only data that must remain secret at all times   
+
+	* 	FALSE, based on [issue #2](https://github.com/ThomasArts/aetmodel/issues/2): The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible. 
+
+2. **The user model is completely flat**, there is only one type of users in the system, all users have equal privileges.
 
 
 ## Threat Model
@@ -183,12 +187,15 @@ To be addressed once a better understanding of the bitcoin-NG and epoch protocol
 
 ### (4) Information Disclosure
 
+
 Considering that all information added to the blockchain is public, the scope of information disclosure is significantly reduced.
 
 The working assumption is that the only data that must remain secret at all times are the private keys of nodes (see Assumptions above) and the private keys of the accounts, oracles, and contracts.
 The threats to the confidentiality and integrity of the node private keys are listed in the ***Spoofing*** threat tree.
 
 Hence, if the assumption is correct, the information disclosure threat tree is a subtree of the ***Spoofing*** threat tree
+
+Update 2018-07-02, based on [issue #2](https://github.com/ThomasArts/aetmodel/issues/2)***The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible***, i.e. assumption  1 is false.
 
 NoTE: double check threat by leaking key information by tampering key and then catching error messages in crash log like this one:
 
@@ -203,6 +210,14 @@ sign(Tx, PrivKeys) when is_list(PrivKeys) ->
     #signed_tx{tx = Tx, signatures = Signatures}.
 ```
 If somehow we provide 2 private keys with one valid and one broken, the valid key will appear in the log.
+
+
+Threat tree for threat vector (4): Information Disclosure. 
+
+	(4.1) Disclosure of messages in a state channel.
+		(4.1.1) Adversary performs a MitM attack on the state channel to breach communication confidentiality and integrity;
+		(4.1.2) Forcing early arbitration to breach communication confidentiality;
+
 
 ### (5) Denial of service
 
@@ -230,6 +245,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 		(5.6.1) Refusing to cooperate after having opened the channel;  
 		(5.6.2) Refusing to sign a multi-party transaction;
 		(5.6.3) Open channels up to the full capacity of the node;
+		(5.6.4) Dropping messages on a state channel;
 
 
 
@@ -297,8 +313,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ### 4. Information Disclosure
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-|   |   |   |   |   |   |   |
-|   |   |   |   |   |   |   |
+| 4.1.1  |  Perform a MitM attack on the communication over a state channel  | If naming system is used - implement reliable mapping between peer names and keypairs; correct implementation of the Noise protocol |   |   |   |   |
+| 4.1.2  |  Adversary performs a selective DoS attack on the state channel to force peer to revert to arbitration and (partly) disclose state channel content | Ensure arbitration requires minimum information about the messages exchanged on the state channel  | N/A  |   |   |   |
 |   |   |   |   |   |   |   |
 
 ### 5. Denial of service
@@ -317,6 +333,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, [locking up coins](https://github.com/aeternity/protocol/tree/master/channels#incentives) and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |   |
 |  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel. |  Needs further investigation |  |  |
 |  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
+|  5.6.4 | Drop arbitrary packets on a state channel to disrupt or degrade communication between two peers. | N/A  |  N/A |  Needs further investigation |  |  High |
 
 
  * **Past attacks/Background information**
@@ -331,6 +348,17 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |   |   |   |   |   |   |   |
 |   |   |   |   |   |   |   |
 |   |   |   |   |   |   |   |
+
+
+## Notes
+
+ * **Notes from Documentation**
+ 	* [**Sync**](https://github.com/aeternity/protocol/blob/master/SYNC.md)
+		* [Sync Transport Protocol](https://github.com/aeternity/protocol/blob/master/SYNC.md#transport-protocol): ***initiator of the handshake sends their static key to the responder and the initiator knows the static key of the responder.*** How does the initiator knows the static key of the responder?
+	* [**Æternity epoch node API**](https://github.com/aeternity/protocol/blob/master/epoch/api/README.md#%C3%86ternity-epoch-node-api)
+		* 	How is internal and external (Internet) exposure of APIs enforced?
+	* [**Release 0.17.0 introduced backward-incompatibility**](https://github.com/aeternity/epoch/blob/master/docs/release-notes/RELEASE-NOTES-0.17.0.md)
+
 
 ## Conclusions
 
