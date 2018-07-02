@@ -2,8 +2,10 @@
 Documentation of threat model
 
 ## List of acronyms
+**EoP** Elevation of Privilege  
 **OOS** Out Of Scope  
 **PRNG** Pseudo-Random Number Generator   
+**MitM** Man-in-the-Middle (attack) 
 **NTP** Network Time Protocol   
 **XSS** Cross-Site Scripting (exploit)
 ## Definitions
@@ -217,7 +219,8 @@ Threat tree for threat vector (4): Information Disclosure.
 	(4.1) Disclosure of messages in a state channel.
 		(4.1.1) Adversary performs a MitM attack on the state channel to breach communication confidentiality and integrity;
 		(4.1.2) Forcing early arbitration to breach communication confidentiality;
-
+		
+		
 
 ### (5) Denial of service
 
@@ -258,7 +261,16 @@ Transactions may validate but nevertheless not be possible to include in a block
 The working assumption is that the user model is flat, i.e. there is no difference between the privileges of any two nodes.
 Hence, if the assumption is correct, the elevation of privilege threat tree only applies to underlying environment and is orthogonal to the software developed in this project.
 
-**discuss** As long as the network is small, there is a concept of Aeternity owned nodes that would be more "trustable" than other nodes. In the beginning it might be important to prevent a small different subset of nodes to take the role as trusted set to connect to.
+**Update 2018-07-02** Assumption is FALSE, since [the AEVM executes untrusted code](https://github.com/ThomasArts/aetmodel/issues/3) 
+
+**discuss** As long as the network is small, there is a concept of Aeternity owned nodes that would be more "trustable" than other nodes. In the beginning it might be important to prevent a small different subset of nodes to take the role as trusted set to connect to.  
+
+* Indeed, this falls under the threat of ["altcoin infanticide"](https://bitcointalk.org/index.php?topic=56675.0). 
+
+		(6.1) EoP on the epoch node.
+			(6.1.)	 Exploitable vulnerabilities in AEVM leading to EoP
+
+
 
 
 ## STRIDE Threat Trees
@@ -345,7 +357,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ### 6. Elevation of privilege
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes | Actions | Priority |
 |---|---|---|---|---|---|---|
-|   |   |   |   |   |   |   |
+| 6.1.1  | Malicious code embedded in the contracts can be run to exploit vulnerabilities in AEVM and lead to elevation of privilege on the epoch node or disclosure of information | Correct implementation and security testing of the AEVM | Sanity checks for code in smart contracts?  |   |   |   |
 |   |   |   |   |   |   |   |
 |   |   |   |   |   |   |   |
 
