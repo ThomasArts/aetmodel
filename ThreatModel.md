@@ -268,8 +268,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 * Indeed, this falls under the threat of ["altcoin infanticide"](https://bitcointalk.org/index.php?topic=56675.0). 
 
 		(6.1) EoP on the epoch node.
-			(6.1.)	 Exploitable vulnerabilities in AEVM leading to EoP
-
+			(6.1.1)	Exploitable vulnerabilities in AEVM leading to EoP
+      (6.1.2) Exploit Erlang distribution to get access to node
 
 
 
@@ -358,7 +358,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes | Actions | Priority |
 |---|---|---|---|---|---|---|
 | 6.1.1  | Malicious code embedded in the contracts can be run to exploit vulnerabilities in AEVM and lead to elevation of privilege on the epoch node or disclosure of information | Correct implementation and security testing of the AEVM | Sanity checks for code in smart contracts?  |   |   |   |
-|   |   |   |   |   |   |   |
+| 6.1.2 | Erlang daemon accepts incoming connection from other Erlang node (default cookie is epoch_cookie) | Node is started with -sname which disallows access from different IP address | Erlang daemon only listens to localhost  |   |   | low |
 |   |   |   |   |   |   |   |
 
 
