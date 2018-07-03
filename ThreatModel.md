@@ -78,11 +78,18 @@ Some work on building the thread model for Aeternity [has already been done](htt
 
 **Assumptions** about the system model and about the way users will interact with the system.
 
+1. **The user model is completely flat**, there is only one type of users in the system, all users have equal privileges.
+	* To be discussed
+
+### FALSE Assumptions
 1. **A node's private key** is the only data that must remain secret at all times   
 
 	* 	FALSE, based on [issue #2](https://github.com/ThomasArts/aetmodel/issues/2): The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible. 
 
-2. **The user model is completely flat**, there is only one type of users in the system, all users have equal privileges.
+	
+2. **All code runs in the same privilege ring**, i.e. all code on the epoch nodes has the same privilege level.
+	
+	* FALSE, based on [issue #3](https://github.com/ThomasArts/aetmodel/issues/3): the AEVM executes untrusted code and EoP should not be possible. 
 
 
 ## Threat Model
@@ -100,6 +107,10 @@ Complementary paths:
 ###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks
 
 ####========================================================
+
+"(1.1.1)" -> Details provided in tables
+"[1.1.1]" -> Details NOT provided in tables
+
 
 ### (1) Spoofing: Spoof user actions
 
@@ -147,11 +158,14 @@ Complementary paths:
 ##### 3. Exploit vulnerabilities in network communication
 	(3.1) Packet spoofing
 		(3.1.1) On-path packet injection
-		(3.1.2) Blind packet injection    
+		(3.1.2) Blind packet injection   
 	(3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
  * **Past attacks**
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
-
+  
+		(3.3) Exploit vulnberabilities in communication security protocols
+			(3.3.1) 	
+ 	
 
 ### (2) Tampering
 Tampering is closely related to spoofing and information disclosure.
@@ -180,11 +194,19 @@ Tampering is closely related to spoofing and information disclosure.
 		(2.5.2) Weak verification of transaction validity
 		(2.5.3) Violation of transaction integrity by a node prior to including in a block
 
+##### 6. Key tampering
+	(2.6) Tampering with keys of epoch nodes
+		(2.6.1) Replacing private keys of miner nodes
+	
+	
+	
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
 ### (3) Repudiation
-To be addressed once a better understanding of the bitcoin-NG and epoch protocols is reached.
+To be further addressed once a better understanding of the bitcoin-NG and epoch protocols is reached.
+
+
 
 
 ### (4) Information Disclosure
@@ -232,6 +254,8 @@ Transactions may validate but nevertheless not be possible to include in a block
 
 	(5.1) Posting invalid transactions.
 	(5.2) Posting valid, but impossible transactions
+			[5.1.1] Resubmitting unusable transactions directly to a node
+			[5.1.2] Gossiping unusable transactions through the p2p network (related to 5.4.2.1)
 	(5.3) Exploiting memory leaks in cleaning transaction pool
 	(5.4) Exploiting network or communication vulnerabilities to degrade or deny service
 		(5.4.1) Launch Eclipse attacks against a node or a set of nodes
@@ -242,6 +266,8 @@ Transactions may validate but nevertheless not be possible to include in a block
 		(5.4.2) Network-wide attacks against the Aeternity network
 			(5.4.2.1) Attacks to slow down the Aeternity network
 		(5.4.3) Denial of Service against Predefined Peer Nodes
+			(5.4.3.1) Denial of Service API functionality
+			(5.4.3.2) Denial of Service using generic DoS methods
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
 	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service.
@@ -268,9 +294,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 * Indeed, this falls under the threat of ["altcoin infanticide"](https://bitcointalk.org/index.php?topic=56675.0). 
 
 		(6.1) EoP on the epoch node.
-			(6.1.)	 Exploitable vulnerabilities in AEVM leading to EoP
-
-
+			(6.1.1)	 Exploitable vulnerabilities in AEVM leading to EoP
+		(6.2) EoP on the miner node
 
 
 ## STRIDE Threat Trees
@@ -312,7 +337,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  2.5.1 | Nodes do not verify transaction validity  | Correct implementation of transaction validity verification in node implementation |  Protocol incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.5.2 | Nodes verify transaction validity, but verification implementation is incomplete or flawed  | Correct implementation of transaction validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.5.3 | Nodes modify transaction prior to including it in a block  | | Protocol incentives preventing nodes from modifying transactions  |   |  Verify correct implementation using a QuickCheck model |   |
-
+|  2.6.1 | Tampering with the keys of miner nodes in order to obtain rewards from mining | Prevent run-time substitution of keys | N/A |   |   |   |
 
 ### 3. Repudiation
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
@@ -340,7 +365,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host |  Needs further investigation | Configure host to use secure/trusted NTP (esp. relevant for peers)  | |Attack shown for ETH - investigate relevance| |  
 |  5.4.1.4 | Eclipsing node by influencing peer selection from unverified pool; assumes obtaining 'secret' used for peer selection |  Needs further investigation | Needs further investigation  | |Secret generation, storage and usage is [undocumented](https://github.com/aeternity/protocol/blob/master/GOSSIP.md#bucket-selection) | |  
 | 5.4.2.1  | Slow down the Aeternity network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
-| 5.4.3  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
+| 5.4.3.1  | Flood Predefined Peer Nodes with requests on the Chain WebSocket API  |  Check request signature   | Throttle requests from same origin  |   |   |   |
+| 5.4.3.2  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 |  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, [locking up coins](https://github.com/aeternity/protocol/tree/master/channels#incentives) and making the peer pay the channel closing fees. | N/A  |  Implement deterring incentives in protocol |  Needs further investigation |  |   |
 |  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel. |  Needs further investigation |  |  |
@@ -366,11 +392,16 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 
  * **Notes from Documentation**
  	* [**Sync**](https://github.com/aeternity/protocol/blob/master/SYNC.md)
-		* [Sync Transport Protocol](https://github.com/aeternity/protocol/blob/master/SYNC.md#transport-protocol): ***initiator of the handshake sends their static key to the responder and the initiator knows the static key of the responder.*** How does the initiator knows the static key of the responder?
+		* [Sync Transport Protocol](https://github.com/aeternity/protocol/blob/master/SYNC.md#transport-protocol): ***initiator of the handshake sends their static key to the responder and the initiator knows the static key of the responder.*** 
+			* 	How does the initiator knows the static key of the responder?
+			*  The reponder's public key is published and authenticated out of band.
 	* [**Æternity epoch node API**](https://github.com/aeternity/protocol/blob/master/epoch/api/README.md#%C3%86ternity-epoch-node-api)
 		* 	How is internal and external (Internet) exposure of APIs enforced?
 	* [**Release 0.17.0 introduced backward-incompatibility**](https://github.com/aeternity/epoch/blob/master/docs/release-notes/RELEASE-NOTES-0.17.0.md)
+	* Privilege levels for the code - what is the correct model?
 
+	
+	
 
 ## Conclusions
 
