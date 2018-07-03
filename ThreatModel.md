@@ -10,10 +10,9 @@ Documentation of threat model
 **XSS** Cross-Site Scripting (exploit)
 ## Definitions
 
-**State Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple state channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. Epoch nodes come with a state channel web-service API as a reference implementation.
 **Client Node** is an Aeternity node with no mining capability.
 
-
+**Invalid transaction** is a transaction that is malformed or otherwise not compliant with the specified format;
 
 **Miner Node** is an Aeternity node with mining capability.
 
@@ -28,6 +27,10 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 **Predefined Peer Node** This is a peer that is automatically connected to upon node startup.
 
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
+**State Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple state channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. Epoch nodes come with a state channel web-service API as a reference implementation.
+
+**Unusable transaction** is a transaction that is well-formed but cannot be completed due to insufficient balance or low value;
+
 
 ## System Model
 
@@ -115,19 +118,21 @@ Complementary paths:
 ### (1) Spoofing: Spoof user actions
 
 ##### 1. Obtain private keys
-	(1.1) At generation time.
-		(1.1.1) Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
-		(1.1.2) Flawed implementation of key generation code
-	 (1.2) At rest / in storage.
-		(1.2.1) Local storage.
-		(1.2.2) Third-party storage (e.g. on-line wallets).  
-		(1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
-		(1.2.4) By neighbours on shared infrastructure.
-		(1.2.5) By operator of virtualized infrastructure.
-		(1.2.6) By malicious apps on mobile devices.
-	(1.3) Node run time.
-	(1.4) At logging time.
-	(1.5) In error messages.
+	(1.1.1) At generation time.
+		(1.1.1.1) Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
+		(1.1.1.2) Flawed implementation of key generation code
+	 (1.1.2) At rest / in storage.
+		(1.1.2.1) Local storage.
+		(1.1.2.2) Third-party storage (e.g. on-line wallets).  
+		(1.1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
+		(1.1.2.4) By neighbours on shared infrastructure.
+		(1.1.2.5) By operator of virtualized infrastructure.
+		(1.1.2.6) By malicious apps on mobile devices.
+	(1.1.3) Node run time.
+	(1.1.4) At logging time.
+	(1.1.5) In error messages.
+		(1.1.5.1) Errors caused by arbitrary corruption of files on file system.
+		[1.1.5.2] Errors caused by invalid program state
 
 
  * **Past attacks**
@@ -149,22 +154,22 @@ Complementary paths:
  ```
 
 ##### 2. Exploit vulnerabilities in authentication code
-	(2.1) Exploit incomplete or otherwise flawed signature verification
+	(1.2) Exploit incomplete or otherwise flawed signature verification
 		(2.1.1)  when validating transactions
  * **Past attacks**
  	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
 	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
 
 ##### 3. Exploit vulnerabilities in network communication
-	(3.1) Packet spoofing
-		(3.1.1) On-path packet injection
-		(3.1.2) Blind packet injection   
-	(3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
+	(1.3.1) Packet spoofing
+		(1.3.1.1) On-path packet injection
+		(1.3.1.2) Blind packet injection   
+	(1.3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
  * **Past attacks**
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
-  
-		(3.3) Exploit vulnberabilities in communication security protocols
-			(3.3.1) 	
+
+		(1.3.3) Exploit vulnberabilities in communication security protocols
+			(1.3.3.1) 	
  	
 
 ### (2) Tampering
@@ -266,7 +271,7 @@ Transactions may validate but nevertheless not be possible to include in a block
 		(5.4.2) Network-wide attacks against the Aeternity network
 			(5.4.2.1) Attacks to slow down the Aeternity network
 		(5.4.3) Denial of Service against Predefined Peer Nodes
-			(5.4.3.1) Denial of Service API functionality
+			(5.4.3.1) Denial of Service using API functionality
 			(5.4.3.2) Denial of Service using generic DoS methods
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
 		(5.5.1) Improper Check for Unusual or Exceptional Condition
@@ -304,22 +309,23 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priotity |
 |---|---|---|---|---|---|---|
-| 1.1.1  | Using weak or flawed PRNGs may lead to generating keys that are predictable or brute-forceable  | Ensure best-practice PRNG is used |  | relevant for mobile devices - past attacks exist | | low priority (unlikely) |
-| 1.1.2  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
-|  1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
-|  1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.2.3     | Vulnerabilities in web services may allow an adversary to execute code on nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes | API for storing keys in a hardware enclave / on external device |  N/A | May be difficult to solve|  | |
-|1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers | API for storing keys in a hardware enclave |  N/A |  Difficult to solve | | |
-|1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
-|  1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
-| 1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
-| 1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check error messages | priority medium |
-|  2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
-|  2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
-|  3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
-|  3.2 |  DNS attack that reroutes users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
+| 1.1.1.1  | Using weak or flawed PRNGs may lead to generating keys that are predictable or brute-forceable  | Ensure best-practice PRNG is used |  | relevant for mobile devices - past attacks exist | | low priority (unlikely) |
+| 1.1.1.2  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
+|  1.1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
+|  1.1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.1.2.3     | Vulnerabilities in web services may allow an adversary to execute code on nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes | API for storing keys in a hardware enclave / on external device |  N/A | May be difficult to solve|  | |
+|1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers | API for storing keys in a hardware enclave |  N/A |  Difficult to solve | | |
+|1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
+|  1.1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
+| 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
+| 1.1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check error messages | priority medium |
+| 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data marked not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datadog) |  | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | priority medium |
+|  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
+|  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
+|  1.3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
+|  1.3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
+|  1.3.2 |  DNS attack that reroutes users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
 
 
 ### 2. Tampering
