@@ -2,6 +2,8 @@
 Documentation of threat model
 
 ## List of acronyms
+**CORS** Cross-Origin Resource Sharing
+
 **EoP** Elevation of Privilege  
 **OOS** Out Of Scope  
 **PRNG** Pseudo-Random Number Generator   
@@ -27,6 +29,7 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 **Predefined Peer Node** This is a peer that is automatically connected to upon node startup.
 
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
+
 **State Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/aeternity/protocol/tree/master/channels#terms), each node can have multiple state channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. Epoch nodes come with a state channel web-service API as a reference implementation.
 
 **Unusable transaction** is a transaction that is well-formed but cannot be completed due to insufficient balance or low value;
@@ -168,8 +171,9 @@ Complementary paths:
  * **Past attacks**
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
-		(1.3.3) Exploit vulnerabilities in communication security protocols
-			(1.3.3.1) 	
+##### 3. Vulnerabilities in node API
+	(1.3.3) Exploiting node API
+		(1.3.3.1) Exploiting CORS to run arbitrary code on node
 
 
 ### (2) Tampering
@@ -310,7 +314,10 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 		(6.1) EoP on the epoch node.
 			(6.1.1)	Exploitable vulnerabilities in AEVM leading to EoP
 	      (6.1.2) Exploit Erlang distribution to get access to node
-
+		(6.2) EoP in p2p network
+			(6.2.1) EoP of an arbitrary node to status of trusted node
+				(6.2.1.1) EoP though exploitabtion of API vulnerabilities;
+				(6.2.1.2) EoP through forged Epoch node distributions;
 
 ## STRIDE Threat Trees
 
@@ -336,7 +343,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  1.3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
 |  1.3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
 |  1.3.2 |  DNS attack that reroutes users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
-
+|  1.3.3.1 |  Adversary runs a web service with malicious code exploiting internal node APIs  | Enforce strict origin policy  | N/A  | Needs further investigation  | |   |
 
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
@@ -406,21 +413,18 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |---|---|---|---|---|---|---|
 | 6.1.1  | Malicious code embedded in the contracts can be run to exploit vulnerabilities in AEVM and lead to elevation of privilege on the epoch node or disclosure of information | Correct implementation and security testing of the AEVM | Sanity checks for code in smart contracts?  |   |   |   |
 | 6.1.2 | Erlang daemon accepts incoming connection from other Erlang node (default cookie is epoch_cookie) | Node is started with -sname which disallows access from different IP address | Erlang daemon only listens to localhost  |   |   | low |
-|   |   |   |   |   |   |   |
+| 6.2.1.1  |  Exploit Epoch node API vulnerability to obtain status of trusted node |  Security testing of Epoch node APIs | N/A  |   |   |   |
+| 6.2.1.2  | Create custom distribution of Epoch node code with a modified set of trusted nodes	 | N/A  | Encourage use of "genuine" epoch nodes |  Discuss potential as "existential" risk to the network |   |   | |
 
 
 ## Notes
 
- * **Notes from Documentation**
- 	* [**Sync**](https://github.com/aeternity/protocol/blob/master/SYNC.md)
-		* [Sync Transport Protocol](https://github.com/aeternity/protocol/blob/master/SYNC.md#transport-protocol): ***initiator of the handshake sends their static key to the responder and the initiator knows the static key of the responder.***
-			* 	How does the initiator knows the static key of the responder?
-			*  The reponder's public key is published and authenticated out of band.
-	* [**Æternity epoch node API**](https://github.com/aeternity/protocol/blob/master/epoch/api/README.md#%C3%86ternity-epoch-node-api)
-		* 	How is internal and external (Internet) exposure of APIs enforced?
-	* [**Release 0.17.0 introduced backward-incompatibility**](https://github.com/aeternity/epoch/blob/master/docs/release-notes/RELEASE-NOTES-0.17.0.md)
+ * **Questions, concerns**
+
 	* Privilege levels for the code - what is the correct model?
+
 	* Password for keypair protection stored in CONFIG file OR as an environment variable is NOT a good practice (example in aec_keys:start_worker/0; config in epoch_config_schema.json)
+
 	* In epoch_config_schema.json: ***such defaults provide a false sense of security and should not be used.***
 
 
@@ -430,13 +434,14 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 			"type" : "string"
 		}
 
-## Miscellaneous:
 * **[Undiscussed]** In aec_peers, '-type peer\_id(): What is the consideration behind using the public key (and not e.g. a hash of it) as peer id?
+
 * **[Undiscussed]** In epoch_config_schema.json: ***description contradicts defaults***
 	  "extra_args" : { "description" : "Extra arguments to pass to the miner executable binary. The safest choice is specifying no arguments i.e. empty string.",
 		                                    "type" : "string",
 		                                    "default": "-t 5"
 		                                },
+
 * **[Undiscussed]** In epoch_config_schema.json: ***consider placing such controls in a separate file - otherwise there is a high risk of deliberately misleading users to make damaging changes, this can damage availability.***
 		"node_bits" : {
 		"description" : "Number of bits used for representing a node in the Cuckoo Cycle problem. It affects both PoW generation (mining) and verification. WARNING: Changing this makes the node incompatible with the chain of other nodes in the network, do not change from the default unless you know what you are doing.",
