@@ -168,7 +168,7 @@ Complementary paths:
  * **Past attacks**
  	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
-		(1.3.3) Exploit vulnberabilities in communication security protocols
+		(1.3.3) Exploit vulnerabilities in communication security protocols
 			(1.3.3.1) 	
 
 
@@ -215,10 +215,14 @@ Epoch stores a persistent copy of the blockchain on some storage. Clearly this s
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
 ### (3) Repudiation
-To be further addressed once a better understanding of the bitcoin-NG and epoch protocols is reached.
+To be extended once the implementation of bitcoin-NG is stable.
 
-
-
+	(3.1) Repudiating a future commitment
+	(3.2) Repudiating a past transaction
+		(3.2.1) Repudiating a past off-chain transaction
+		(3.2.2) Repudiating a past on-chain transaction
+				(3.2.2.1) Repudiating timely reception of an oracle response
+				(3.2.2.2) Repudiating late submission of an oracle response
 
 ### (4) Information Disclosure
 
@@ -357,10 +361,12 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ### 3. Repudiation
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
+|  3.1 |  An Epoch node  repudiating a future commitment (e.g. as oracle) | N/A  |  N/A | Can someone "announce" a victim node X as oracle without node X's its consent? motivation: to "damage" a nodes' reputation as oracle;  Needs further investigation |   |   |
+|  3.2.1 | Epoch node repudiating a past transaction that is not on the chain | N/A  | N/A  | OOS; Since a tx on the chain is signed with private keys, only possible due to loss of private keys; safeguarding private keys is responsibility of the node  |   |   |
+|  3.2.2 | Epoch node repudiating a past transaction that is on the chain | N/A |  N/A | Needs further investigation   |   |   |
+|  3.2.2.1 |  Epoch node repudiating timely reception of oracle response (within originally posted TTL)  |  N/A | N/A  |  Needs further investigation |   |   |
+|  3.2.2.2 | Oracle node repudiating late submission of a query response  |  N/A | adjust miner incentives  | Needs further investigation; since the oracle has no control (?) over when the transaction enters the chain, it can claim that it has posted an oracle response transaction "on time", but no miner picked it up;  |   |   |
 |   |   |   |   |   |   |   |
-|   |   |   |   |   |   |   |
-|   |   |   |   |   |   |   |
-
 
 ### 4. Information Disclosure
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
