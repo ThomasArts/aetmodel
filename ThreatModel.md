@@ -313,8 +313,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  1.1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.1.2.3     | Vulnerabilities in web services may allow an adversary to execute code on nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes | API for storing keys in a hardware enclave / on external device |  N/A | May be difficult to solve|  | |
-|1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers | API for storing keys in a hardware enclave |  N/A |  Difficult to solve | | |
+|1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes, e.g. from configuration file | API for storing keys in a hardware enclave / on external device |  N/A | May be difficult to solve|  | |
+|1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers by reading files stored on disk | API for storing keys in a hardware enclave |  N/A |  Low bar | | |
 |1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
 |  1.1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
@@ -406,21 +406,27 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 	* [**Release 0.17.0 introduced backward-incompatibility**](https://github.com/aeternity/epoch/blob/master/docs/release-notes/RELEASE-NOTES-0.17.0.md)
 	* Privilege levels for the code - what is the correct model?
 	* Password for keypair protection stored in CONFIG file OR as an environment variable is NOT a good practice (example in aec_keys:start_worker/0; config in epoch_config_schema.json)
-	* In epoch_config_schema.json: ***Password used to encrypt the peer key-pair files - if left blank `password` will be used*** -> such defaults provide a false sense of security and should not be used.
+	* In epoch_config_schema.json: ***such defaults provide a false sense of security and should not be used.***
 
+
+	"peer_password" : {
+			"description" :
+			"Password used to encrypt the peer key-pair files - if left blank `password` will be used",
+			"type" : "string"
+		}
 
 ## Miscellaneous:
-* In epoch_config_schema.json: description contradicts defaults
+* **[Undiscussed]** In aec_peers, '-type peer\_id(): What is the consideration behind using the public key (and not e.g. a hash of it) as peer id?
+* **[Undiscussed]** In epoch_config_schema.json: ***description contradicts defaults***
 	  "extra_args" : { "description" : "Extra arguments to pass to the miner executable binary. The safest choice is specifying no arguments i.e. empty string.",
 		                                    "type" : "string",
 		                                    "default": "-t 5"
 		                                },
-* In epoch_config_schema.json: consider placing such controls in a separate file - otherwise there is a high risk of deliberately misleading users to make damaging changes, this can damage availability.
+* **[Undiscussed]** In epoch_config_schema.json: ***consider placing such controls in a separate file - otherwise there is a high risk of deliberately misleading users to make damaging changes, this can damage availability.***
 		"node_bits" : {
 		"description" : "Number of bits used for representing a node in the Cuckoo Cycle problem. It affects both PoW generation (mining) and verification. WARNING: Changing this makes the node incompatible with the chain of other nodes in the network, do not change from the default unless you know what you are doing.",
 		                                    "type": "integer",
 		                                    "default": 28
-
 
 ## Conclusions
 
