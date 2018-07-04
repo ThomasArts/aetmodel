@@ -203,6 +203,12 @@ Tampering is closely related to spoofing and information disclosure.
 	(2.6) Tampering with keys of epoch nodes
 		(2.6.1) Replacing private keys of miner nodes
 
+##### 7. Database tampering
+Epoch stores a persistent copy of the blockchain on some storage. Clearly this storage is hard to get to, but if stored on some cloud machine, it may be tampered with.
+	(2.7) Tampering with the persistent copy of the blockchain database
+		(2.7.1) Tampering the genesis blocks
+    (2.7.2) Tampering blocks
+
 
 
 * **Related info**
@@ -344,6 +350,9 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  2.5.2 | Nodes verify transaction validity, but verification implementation is incomplete or flawed  | Correct implementation of transaction validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.5.3 | Nodes modify transaction prior to including it in a block  | | Protocol incentives preventing nodes from modifying transactions  |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.6.1 | Tampering with the keys of miner nodes in order to obtain rewards from mining | Prevent run-time substitution of keys | N/A |   |   |   |
+|  2.7.1 | Tampering the genesis block in persistent DB | A node is isolated if genesis block differs, no communication with other epochs possible  | Ensure that database runs in protected area |   |   |  no issue |
+|  2.7.2 | Tampering a block in persistent DB | DB is read at startup and all blocks are validated again, tampering will be noticed in block-hash that does not fit. If new consecutive hashes have been computed, then DB is considered a fork and tampered part is removed while syncing with other nodes |  Ensure that database runs in protected area | |   | no issue  |
+
 
 ### 3. Repudiation
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
