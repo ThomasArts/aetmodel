@@ -206,12 +206,23 @@ Tampering is closely related to spoofing and information disclosure.
 ##### 6. Key tampering
 	(2.6) Tampering with keys of epoch nodes
 		(2.6.1) Replacing private keys of miner nodes
+    (2.6.2) Replacing public key of miner beneficial
 
 ##### 7. Database tampering
 Epoch stores a persistent copy of the blockchain on some storage. Clearly this storage is hard to get to, but if stored on some cloud machine, it may be tampered with.
+
 	(2.7) Tampering with the persistent copy of the blockchain database
 		(2.7.1) Tampering the genesis blocks
     (2.7.2) Tampering blocks
+
+##### 8. Code tampering
+The epoch node software is open source and constructed using other open source components or libraries.
+
+	(2.8) Tampering code
+		(2.8.1) Tampering code in the epoch repository
+		(2.8.2) Tampering code in a library used by epoch
+		(2.8.3) Tampering code before compilation (e.g. via build software)
+
 
 
 
