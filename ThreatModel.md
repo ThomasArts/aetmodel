@@ -5,7 +5,7 @@ Documentation of threat model
 **EoP** Elevation of Privilege  
 **OOS** Out Of Scope  
 **PRNG** Pseudo-Random Number Generator   
-**MitM** Man-in-the-Middle (attack) 
+**MitM** Man-in-the-Middle (attack)
 **NTP** Network Time Protocol   
 **XSS** Cross-Site Scripting (exploit)
 ## Definitions
@@ -87,12 +87,12 @@ Some work on building the thread model for Aeternity [has already been done](htt
 ### FALSE Assumptions
 1. **A node's private key** is the only data that must remain secret at all times   
 
-	* 	FALSE, based on [issue #2](https://github.com/ThomasArts/aetmodel/issues/2): The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible. 
+	* 	FALSE, based on [issue #2](https://github.com/ThomasArts/aetmodel/issues/2): The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible.
 
-	
+
 2. **All code runs in the same privilege ring**, i.e. all code on the epoch nodes has the same privilege level.
-	
-	* FALSE, based on [issue #3](https://github.com/ThomasArts/aetmodel/issues/3): the AEVM executes untrusted code and EoP should not be possible. 
+
+	* FALSE, based on [issue #3](https://github.com/ThomasArts/aetmodel/issues/3): the AEVM executes untrusted code and EoP should not be possible.
 
 
 ## Threat Model
@@ -122,7 +122,7 @@ Complementary paths:
 		(1.1.1.1) Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
 		(1.1.1.2) Flawed implementation of key generation code
 	 (1.1.2) At rest / in storage.
-		(1.1.2.1) Local storage.
+		(1.1.2.1) From local storage.
 		(1.1.2.2) Third-party storage (e.g. on-line wallets).  
 		(1.1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
 		(1.1.2.4) By neighbours on shared infrastructure.
@@ -132,7 +132,7 @@ Complementary paths:
 	(1.1.4) At logging time.
 	(1.1.5) In error messages.
 		(1.1.5.1) Errors caused by arbitrary corruption of files on file system.
-		[1.1.5.2] Errors caused by invalid program state
+		(1.1.5.2) Errors caused by invalid program state
 
 
  * **Past attacks**
@@ -170,7 +170,7 @@ Complementary paths:
 
 		(1.3.3) Exploit vulnberabilities in communication security protocols
 			(1.3.3.1) 	
- 	
+
 
 ### (2) Tampering
 Tampering is closely related to spoofing and information disclosure.
@@ -202,9 +202,9 @@ Tampering is closely related to spoofing and information disclosure.
 ##### 6. Key tampering
 	(2.6) Tampering with keys of epoch nodes
 		(2.6.1) Replacing private keys of miner nodes
-	
-	
-	
+
+
+
 * **Related info**
 	* [Unchecked block validity](https://github.com/aeternity/protocol/blob/master/SYNC.md#incentives)
 
@@ -216,7 +216,6 @@ To be further addressed once a better understanding of the bitcoin-NG and epoch 
 
 ### (4) Information Disclosure
 
-
 Considering that all information added to the blockchain is public, the scope of information disclosure is significantly reduced.
 
 The working assumption is that the only data that must remain secret at all times are the private keys of nodes (see Assumptions above) and the private keys of the accounts, oracles, and contracts.
@@ -224,7 +223,7 @@ The threats to the confidentiality and integrity of the node private keys are li
 
 Hence, if the assumption is correct, the information disclosure threat tree is a subtree of the ***Spoofing*** threat tree
 
-Update 2018-07-02, based on [issue #2](https://github.com/ThomasArts/aetmodel/issues/2)***The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible***, i.e. assumption  1 is false.
+Update 2018-07-02, based on [issue#2](https://github.com/ThomasArts/aetmodel/issues/2)***The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible***, i.e. assumption  1 is false.
 
 NoTE: double check threat by leaking key information by tampering key and then catching error messages in crash log like this one:
 
@@ -241,13 +240,13 @@ sign(Tx, PrivKeys) when is_list(PrivKeys) ->
 If somehow we provide 2 private keys with one valid and one broken, the valid key will appear in the log.
 
 
-Threat tree for threat vector (4): Information Disclosure. 
+Threat tree for threat vector (4): Information Disclosure.
 
 	(4.1) Disclosure of messages in a state channel.
 		(4.1.1) Adversary performs a MitM attack on the state channel to breach communication confidentiality and integrity;
 		(4.1.2) Forcing early arbitration to breach communication confidentiality;
-		
-		
+
+
 
 ### (5) Denial of service
 
@@ -292,11 +291,11 @@ Transactions may validate but nevertheless not be possible to include in a block
 The working assumption is that the user model is flat, i.e. there is no difference between the privileges of any two nodes.
 Hence, if the assumption is correct, the elevation of privilege threat tree only applies to underlying environment and is orthogonal to the software developed in this project.
 
-**Update 2018-07-02** Assumption is FALSE, since [the AEVM executes untrusted code](https://github.com/ThomasArts/aetmodel/issues/3) 
+**Update 2018-07-02** Assumption is FALSE, since [the AEVM executes untrusted code](https://github.com/ThomasArts/aetmodel/issues/3)
 
 **discuss** As long as the network is small, there is a concept of Aeternity owned nodes that would be more "trustable" than other nodes. In the beginning it might be important to prevent a small different subset of nodes to take the role as trusted set to connect to.  
 
-* Indeed, this falls under the threat of ["altcoin infanticide"](https://bitcointalk.org/index.php?topic=56675.0). 
+* Indeed, this falls under the threat of ["altcoin infanticide"](https://bitcointalk.org/index.php?topic=56675.0).
 
 		(6.1) EoP on the epoch node.
 			(6.1.1)	Exploitable vulnerabilities in AEVM leading to EoP
@@ -320,7 +319,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  1.1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
 | 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
 | 1.1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check error messages | priority medium |
-| 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data marked not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datadog) |  | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | priority medium |
+| 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datadog) |  | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | priority medium |
+| 1.1.5.2  |  Exposing sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datadog) |  | Example: none yet | priority medium |
 |  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
 |  1.3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
@@ -398,16 +398,29 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 
  * **Notes from Documentation**
  	* [**Sync**](https://github.com/aeternity/protocol/blob/master/SYNC.md)
-		* [Sync Transport Protocol](https://github.com/aeternity/protocol/blob/master/SYNC.md#transport-protocol): ***initiator of the handshake sends their static key to the responder and the initiator knows the static key of the responder.*** 
+		* [Sync Transport Protocol](https://github.com/aeternity/protocol/blob/master/SYNC.md#transport-protocol): ***initiator of the handshake sends their static key to the responder and the initiator knows the static key of the responder.***
 			* 	How does the initiator knows the static key of the responder?
 			*  The reponder's public key is published and authenticated out of band.
 	* [**Æternity epoch node API**](https://github.com/aeternity/protocol/blob/master/epoch/api/README.md#%C3%86ternity-epoch-node-api)
 		* 	How is internal and external (Internet) exposure of APIs enforced?
 	* [**Release 0.17.0 introduced backward-incompatibility**](https://github.com/aeternity/epoch/blob/master/docs/release-notes/RELEASE-NOTES-0.17.0.md)
 	* Privilege levels for the code - what is the correct model?
+	* Password for keypair protection stored in CONFIG file OR as an environment variable is NOT a good practice (example in aec_keys:start_worker/0; config in epoch_config_schema.json)
+	* In epoch_config_schema.json: ***Password used to encrypt the peer key-pair files - if left blank `password` will be used*** -> such defaults provide a false sense of security and should not be used.
 
-	
-	
+
+## Miscellaneous:
+* In epoch_config_schema.json: description contradicts defaults
+	  "extra_args" : { "description" : "Extra arguments to pass to the miner executable binary. The safest choice is specifying no arguments i.e. empty string.",
+		                                    "type" : "string",
+		                                    "default": "-t 5"
+		                                },
+* In epoch_config_schema.json: consider placing such controls in a separate file - otherwise there is a high risk of deliberately misleading users to make damaging changes, this can damage availability.
+		"node_bits" : {
+		"description" : "Number of bits used for representing a node in the Cuckoo Cycle problem. It affects both PoW generation (mining) and verification. WARNING: Changing this makes the node incompatible with the chain of other nodes in the network, do not change from the default unless you know what you are doing.",
+		                                    "type": "integer",
+		                                    "default": 28
+
 
 ## Conclusions
 
