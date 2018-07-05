@@ -67,10 +67,11 @@ High-level features:
 	* Opening the channel:  
 	* Closing the channel
 6. **Privacy** - currently a non-issue;
-7. **Communication with miners** - "seed" nodes provided by Aeternity, new nodes from the network through gossiping.
+7. **Communication with nodes** - "seed" nodes provided by Aeternity, new nodes from the network through gossiping.
 8. **Transaction fees**
-This is a community blockchain, minimum fees depending on a vote.
-Paying more than a minimum fee is possible.
+This is a community blockchain, minimum fees are agreed upon by governance. Paying more than a minimum fee is possible and expected to be steered by the market.
+9. **Governance**
+There is a set of parameters, such as minimal transaction fee, that may be modified over the lifetime of the blockchain. Changes must be agreed upon by the majority of the community and governance is the mechanism to vote on the chain in favour or against changes.
 
 =============================================
 
