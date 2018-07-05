@@ -44,17 +44,18 @@ General blockchain, allowing whatever actions on the blockchain.
 
 Different from BitCoin in that it has many more options and that it introduces oracles, name registration, contracts and state-channels.
 Many more transactions possible than in BitCoin, faster in 3 ways:  
-	* Faster block rate
-  * Bitcoin-NG technology with key-blocks and micro-blocks
-	* Off-chain state channels (micro-payments per second)
 
+		1. Faster block rate
+		2. Bitcoin-NG technology with key-blocks and micro-blocks
+		3. Off-chain state channels (micro-payments per second)
 
-If there are too many transactions, some transaction might be stuck in the pool.  
+Other remarks on system model:
+	* If there are too many transactions, some transaction might be stuck in the pool.
 	* Miners may attempt to block the vote by not processing the transactions with the vote(s)
 
 High-level features:
 
-1. Account
+1. **Account**
 	* **Public key on the chain + private key** - the blockchain does not handle the private keys of the users. Users are assumed to take care of their own keys; we trust the key generation code;
 	* **Tokens as value on the account** - will be stored in wallets of some sort;
 	* **Nonce** is a counter that increases upon every transaction.
@@ -71,7 +72,11 @@ High-level features:
 This is a community blockchain, minimum fees depending on a vote.
 Paying more than a minimum fee is possible.
 
-bitcoin-NG - selecting a leader who can mine the blockchain, until the next leader is elected.
+=============================================
+
+***System Diagrams go HERE***
+
+=============================================
 
 ## Previous Work on Threat Model
 
@@ -79,6 +84,9 @@ Some work on building the thread model for Aeternity [has already been done](htt
 
 ## Assets
 **Assets** describe are the valuable data that the business cares about
+1. **Private Keys** are of paramount importance, the "golden nuggets"; they uniquely identify epoch nodes and used to authenticate transactions.
+2. **Password for key encryption** used to encrypt keypair files stored to disk (under invstigation if ***both*** keyspair files are encrypted - only private key is enough).
+3. **Communication on state channels for cooperating nodes** - this is potentially an asset (according to [issue#2](https://github.com/ThomasArts/aetmodel/issues/2), but is unconfirmed and needs further investigation.
 
 ## Assumptions
 
@@ -437,7 +445,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 	* Password for keypair protection stored in CONFIG file OR as an environment variable is NOT a good practice (example in aec_keys:start_worker/0; config in epoch_config_schema.json)
 
 	* In epoch_config_schema.json: ***such defaults provide a false sense of security and should not be used.***
-
+	* In epoch_config_schema.json: "used to encrypt the peer key-pair files" - it does not make sense to encrypt the public key file (investigate if that is actually done).
 
 	"peer_password" : {
 			"description" :
