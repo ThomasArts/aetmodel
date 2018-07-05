@@ -26,7 +26,7 @@ Identified by a URI consisting of the protocol 'aenode://', the public key, an '
 **Peer Node** [is a node participating in a channel](https://github.com/aeternity/protocol/tree/master/channels#terms).  
 **Penetration testing** (aka ***pentesting***) authorized simulated attack on a computer system, performed to evaluate the security of the target system.
 The test aims to identify the target's strengths and vulnerabilities, including the potential for unauthorized parties to gain access to the system's software and data.  
-**Predefined Peer Node** This is a peer that is automatically connected to upon node startup.
+**Predefined Epoch Node** This is a peer that is automatically connected to upon node startup.
 
 **Spoofing** is an attack in which a person or program successfully masquerades as another by falsifying data, to gain an illegitimate advantage.
 
@@ -48,10 +48,6 @@ Many more transactions possible than in BitCoin, faster in 3 ways:
 		1. Faster block rate
 		2. Bitcoin-NG technology with key-blocks and micro-blocks
 		3. Off-chain state channels (micro-payments per second)
-
-Other remarks on system model:
-	* If there are too many transactions, some transaction might be stuck in the pool.
-	* Miners may attempt to block the vote by not processing the transactions with the vote(s)
 
 High-level features:
 
