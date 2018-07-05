@@ -42,7 +42,7 @@ It abstracts the details and allows to define the trust boundaries and state cha
 
 General blockchain, allowing whatever actions on the blockchain.
 
-Different from BitCoin in that it has many more options and that it introduces oracles, name registration, contracts and state-channels.
+Different from BitCoin in that it has many more features and that it introduces oracles, name registration, contracts,  state-channels and governance.
 Many more transactions possible than in BitCoin, faster in 3 ways:  
 
 		1. Faster block rate
