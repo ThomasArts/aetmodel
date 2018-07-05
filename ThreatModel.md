@@ -71,19 +71,18 @@ There is a set of parameters, such as minimal transaction fee, that may be modif
 
 =============================================
 
-***System Diagrams go HERE***
+![Overview System Diagram](https://github.com/aeternity/aetmodel/blob/master/epoch-system-diagram.jpeg)
 
 =============================================
-
-## Previous Work on Threat Model
-
-Some work on building the thread model for Aeternity [has already been done](https://github.com/aeternity/protocol/blob/master/SYNC.md#threat-model).
 
 ## Assets
 **Assets** describe are the valuable data that the business cares about
 1. **Private Keys** are of paramount importance, the "golden nuggets"; they uniquely identify epoch nodes and used to authenticate transactions.
 2. **Password for key encryption** used to encrypt keypair files stored to disk (under invstigation if ***both*** keyspair files are encrypted - only private key is enough).
 3. **Communication on state channels for cooperating nodes** - this is potentially an asset (according to [issue#2](https://github.com/ThomasArts/aetmodel/issues/2), but is unconfirmed and needs further investigation.
+4. **Tokens** are an expression of value in the system.
+Control over tokens that belong to an account should be unconditionally linked to the respective account's private key.
+5. **Computational power** - we consider Tokens and computational power equivalent in the context of the Aeternity blockchain.
 
 ## Assumptions
 
@@ -105,17 +104,29 @@ Some work on building the thread model for Aeternity [has already been done](htt
 
 ## Threat Model
 
-Complementary paths:  
-###1. Use the **STRIDE** model to threat modelling:   
+The threat model described in this document is based on three artifacts:
+
+### 1. The **STRIDE** model:   
+
+STRIDE is a mnemonic for things that go wrong in computer and network systems security [1],[2].
+It stands for Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege.
+We base the threat model described in this document on an adaptation of the STRIDE methodology.
+A virualization of the threat trees will be added in the future if necessary.
+
 * **(1) Spoofing** - Impersonating something or someone else.  
 * **(2) Tampering** - Modifying data (transaction content?) or code.   
 * **(3) Repudiation** - Claiming	to	have not performed an action.   
 * **(4) Information disclosure** - Exposing information to someone not authorized to see it.  
 * **(5) Denial of service** - Deny or	degrade service to users.  
 * **(6) Elevation of privilege** -  Gain capabilities without proper authorization
-* **(7) Other?...**
 
-###2. Go through Bitcoin-Threat-Model.md and check relevance of attacks
+### 2. Earlier threat model work on Bitcoin
+Earlier work has been done on the [Bitcoin threat model](https://github.com/JWWeatherman/bitcoin_security_threat_model).
+We have reviewed and adapted the parts that were considered relevant to Aeternity.
+
+### 3. Previous Work on Threat Model
+Earlier work has been done on a [thread model for Aeternity](https://github.com/aeternity/protocol/blob/master/SYNC.md#threat-model).
+We revised the updated information and relevant aspects and included them into the current threat model.
 
 ####========================================================
 
@@ -473,3 +484,10 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ### Threats to be transferred
 
 ### Accepted risks
+
+## References
+
+[1] P. Torr, "Demystifying the Threat-Modeling Process," in IEEE Security & Privacy, vol. 3, no. , pp. 66-70, 2005.
+[doi](10.1109/MSP.2005.119), [url](doi.ieeecomputersociety.org/10.1109/MSP.2005.119)
+
+[2] A. Shostack "Threat Modeling: Designing for Security", ISBN: 978-1-118-80999-0, Feb 2014
