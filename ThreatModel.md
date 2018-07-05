@@ -61,7 +61,7 @@ High-level features:
 	* **Nonce** is a counter that increases upon every transaction.
 
 2. **Contract language** a DSL for writing contracts.
-3. **Oracle mechanism** ~ web server that exposes a certain API
+3. **Oracle mechanism** ~ An oracle operator scans the blockchain for query transactions and posts answers to those queries to the chain.
 4. **Naming service** - allows to claim a name;
 5. **State channels** - allow offline transactions;
 	* Opening the channel:  
