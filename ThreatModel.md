@@ -53,14 +53,14 @@ High-level features:
 
 1. **Account**
 	* **Public key on the chain + private key** - the blockchain does not handle the private keys of the users. Users are assumed to take care of their own keys; we trust the key generation code;
-	* **Tokens as value on the account** - will be stored in wallets of some sort;
+	* **Tokens** - each account holds a positive amount of tokens (aeons);
 	* **Nonce** is a counter that increases upon every transaction.
 
 2. **Contract language** a DSL for writing contracts.
 3. **Oracle mechanism** ~ An oracle operator scans the blockchain for query transactions and posts answers to those queries to the chain.
 4. **Naming service** - allows to claim a name;
 5. **State channels** - allow offline transactions;
-	* Opening the channel:  
+	* Opening the channel
 	* Closing the channel
 6. **Privacy** - currently a non-issue;
 7. **Communication with nodes** - "seed" nodes provided by Aeternity, new nodes from the network through gossiping.
