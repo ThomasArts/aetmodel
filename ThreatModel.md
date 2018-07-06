@@ -18,7 +18,7 @@ Documentation of threat model
 
 **Miner Node** is an Aeternity node with mining capability.
 
-**Node** (aka **Epoch node***) umbrella term for Aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
+**Node** (aka **Epoch node**) umbrella term for Aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
 Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.  
 
 **Connection** is a communication channel between two nodes peers. There is only one connection between each two peers.
@@ -198,53 +198,42 @@ We revised the updated information and relevant aspects and included them into t
 
 ### (2) Tampering
 Tampering is closely related to spoofing and information disclosure.
-##### 1. Connection tampering
-	(2.1.1) No connection integrity
-		(2.1.2) Weak connection integrity;
-		(2.1.3) Connection security compromise;
 
-##### 2. Message tampering
-	(2.2) Verification of message integrity
-		(2.2.1) No message integrity
-		(2.2.2) Weak message integrity;
+		(2.1) Connection tampering
+			(2.1.1) No connection integrity
+			(2.1.2) Weak connection integrity;
+			(2.1.3) Connection security compromise;
+		(2.2) Tampering with message integrity
+			(2.2.1) No message integrity
+			(2.2.2) Weak message integrity;
+		(2.3) Tampering with the ordering of transactions included in a block
+			(2.3.1) Tampering the timestamp in mined blocks
+		(2.4) Tampering with block validity
+			(2.4.1) No verification of block validity
+			(2.4.2) Weak verification of block validity
+		(2.5) Tampering with transaction validity
+			(2.5.1) No verification of transaction validity
+			(2.5.2) Weak verification of transaction validity
+			(2.5.3) Violation of transaction integrity by a node prior to including in a block
+		(2.6) Tampering with keys of epoch nodes
+			(2.6.1) Replacing private keys of miner nodes
+			(2.6.2) Replacing public key of miner beneficiary
+		(2.7) Tampering with the persistent copy of the blockchain database (see Note 2.1)
+			(2.7.1) Tampering the genesis blocks
+			(2.7.2) Tampering blocks
+		(2.8) Tampering with code (see Note 2.2)
+			(2.8.1) Tampering with code in the epoch repository
+			(2.8.2) Tampering with code in a library used by epoch
+			(2.8.3) Tampering with code before compilation (e.g. via build software)
+			(2.8.4) Tampering from Erlang nodes on the same platform (see Note 2.3)
 
-##### 3. Time and ordering
-	(2.3) Tampering with the ordering of transactions included in a block
-		(2.3.1) Tampering the timestamp in mined blocks
-
-##### 4. Block tampering
-	(2.4) Verification of block validity
-		(2.4.1) No verification of block validity
-		(2.4.2) Weak verification of block validity
-
-##### 5. Transaction tampering
-	(2.5) Verification of transaction validity
-		(2.5.1) No verification of transaction validity
-		(2.5.2) Weak verification of transaction validity
-		(2.5.3) Violation of transaction integrity by a node prior to including in a block
-
-##### 6. Key tampering
-	(2.6) Tampering with keys of epoch nodes
-		(2.6.1) Replacing private keys of miner nodes
-    (2.6.2) Replacing public key of miner beneficiary
-
-##### 7. Database tampering
+* **Note 2.1: on (2.7) Database tampering**
 Epoch stores a persistent copy of the blockchain on some storage. Clearly this storage is hard to get to, but if stored on some cloud machine, it may be tampered with.
 
-	(2.7) Tampering with the persistent copy of the blockchain database
-		(2.7.1) Tampering the genesis blocks
-    (2.7.2) Tampering blocks
-
-##### 8. Code tampering
+* **Note 2.2: on (2.8) Code Tampering**
 The epoch node software is open source and constructed using other open source components or libraries.
-
-	(2.8) Tampering code
-		(2.8.1) Tampering code in the epoch repository
-		(2.8.2) Tampering code in a library used by epoch
-		(2.8.3) Tampering code before compilation (e.g. via build software)
-		(2.8.4) Any other Erlang node on the same platform can interact with the Epoch nodes
-
-
+* **Note 2.3: on (2.8.4) Colocated Erlang nodes**
+***Any*** Erlang node on the same platform can interact with the Epoch nodes
 
 * **Related info**
 	* [Unchecked block validity](https://github.com/Aeternity/protocol/blob/master/SYNC.md#incentives)
@@ -275,7 +264,6 @@ Threat tree for threat vector (4): Information Disclosure.
 	(4.1) Disclosure of messages in a state channel.
 		(4.1.1) Adversary performs a MitM attack on the state channel to breach communication confidentiality and integrity;
 		(4.1.2) Forcing early arbitration to breach communication confidentiality;
-
 
 
 ### (5) Denial of service
@@ -341,11 +329,11 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 
 ### 1. (Node) Spoofing
 
-|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priotity |
+|  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
 | 1.1.1.1  | Using weak or flawed PRNGs may lead to generating keys that are predictable or brute-forceable  | Ensure best-practice PRNG is used | [Libsodium PRNG](https://download.libsodium.org/doc/generating_random_data/) is used | relevant for mobile devices - past attacks exist | | low priority (unlikely) |
 | 1.1.1.2  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
-| 1.1.1.2.1  | Vulnerabilities in the crypto libraray implementation  | Extensive testing of the underlying crypto library | Short patching cycle |   |   | low priority (unlikely)|
+| 1.1.1.2.1  | Vulnerabilities in the crypto library implementation  | Extensive testing of the underlying crypto library | Short patching cycle |   |   | low priority (unlikely)|
 | 1.1.1.2.2  | Vulnerabilities in the Epoch crypto functionality implementation | Extensive testing of the Epoch crypto functionality | Short patching cycle |   |   | medium priority |
 |  1.1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
@@ -354,10 +342,10 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers by reading files stored on disk | API for storing keys in a hardware enclave |  N/A |  Low bar | | |
 |1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
 |  1.1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
-| 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check encrypted submission to datadog | priority low |
-| 1.1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datadog) |  | TODO: check error messages | priority medium |
-| 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datadog) |  | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | priority medium |
-| 1.1.5.2  |  Exposing sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datadog) |  | Example: none yet | priority medium |
+| 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check encrypted submission to datalog | priority low |
+| 1.1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check error messages | priority medium |
+| 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | priority medium |
+| 1.1.5.2  |  Exposing sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: none yet | priority medium |
 | 1.1.5.3  |  Exposing sensitive information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
 |  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
