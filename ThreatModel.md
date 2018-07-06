@@ -14,8 +14,6 @@ Documentation of threat model
 
 **Client Node** is an Aeternity node with no mining capability.
 
-**Invalid transaction** is a transaction that is malformed or otherwise not compliant with the specified format;
-
 **Miner Node** is an Aeternity node with mining capability.
 
 **Node** (aka **Epoch node**) umbrella term for Aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
@@ -46,8 +44,8 @@ It abstracts the details and allows to define the trust boundaries and state cha
 
 General blockchain, allowing whatever actions on the blockchain.
 
-Different from BitCoin in that it has many more features and that it introduces oracles, name registration, contracts,  state-channels and governance.
-Many more transactions possible than in BitCoin, faster in 3 ways:  
+Different from BitCoin in that it has many more features and that it introduces oracles, name registration, contracts, state-channels and governance.
+Higher transaction throughput possible than in BitCoin, faster in 3 ways:  
 
 		1. Faster block rate
 		2. Bitcoin-NG technology with key-blocks and micro-blocks
@@ -119,7 +117,7 @@ The threat model described in this document is based on three artifacts:
 STRIDE is a mnemonic for things that go wrong in computer and network systems security [1],[2].
 It stands for Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege.
 We base the threat model described in this document on an adaptation of the STRIDE methodology.
-A virualization of the threat trees will be added in the future if necessary.
+A virtualization of the threat trees will be added in the future if necessary.
 
 * **(1) Spoofing** - Impersonating something or someone else.  
 * **(2) Tampering** - Modifying data (transaction content?) or code.   
@@ -370,8 +368,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 | 2.1.3  | Connection security compromised due to nonce wrap back | Ensure parties do not send more than 2^64 - 1 messages with the same session key  |  | Consider that a connection can be [multiplexed](https://github.com/Aeternity/protocol/tree/master/channels#high-level-overview) into long-lived channels |  Verify through code review (?) |   |  
 |  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
 |  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
-|  2.2.3 | Message integrity is not verified  | Correct implementation of authenticated encryption |   |   |  Verify correct implementation using a QuickCheck model |   |
-|  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implementation | Protocol uses incentive to prevent transaction reordering  |   |  Discuss whether this is a threat |   |
+|  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implementation |   |   |  Discuss whether this is a threat |   |
 |  2.4.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.4.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.5.1 | Nodes do not verify transaction validity  | Correct implementation of transaction validity verification in node implementation |  Protocol incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
@@ -390,7 +387,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
 |  3.1 |  An Epoch node  repudiating a future commitment (e.g. as oracle) | N/A  |  N/A | Can someone "announce" a victim node X as oracle without node X's its consent? motivation: to "damage" a nodes' reputation as oracle;  Needs further investigation |   |   |
-|  3.2.1 | Epoch node repudiating a past transaction that is not on the chain | N/A  | N/A  | OOS; Since a tx on the chain is signed with private keys, only possible due to loss of private keys; safeguarding private keys is responsibility of the node  |   |   |
+|  3.2.1 | Epoch node repudiating a past transaction that is not on the chain | N/A  | N/A  | OOS; Since a transaction on the chain is signed with private keys, only possible due to loss of private keys; safeguarding private keys is responsibility of the node  |   |   |
 |  3.2.2 | Epoch node repudiating a past transaction that is on the chain | N/A |  N/A | Needs further investigation   |   |   |
 |  3.2.2.1 |  Epoch node repudiating timely reception of oracle response (within originally posted TTL)  |  N/A | N/A  |  Needs further investigation |   |   |
 |  3.2.2.2 | Oracle node repudiating late submission of a query response  |  N/A | adjust miner incentives  | Needs further investigation; since the oracle has no control (?) over when the transaction enters the chain, it can claim that it has posted an oracle response transaction "on time", but no miner picked it up;  |   |   |
@@ -407,7 +404,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
 | 5.1  | Posting invalid transactions  | The node that receives a transaction validates this transaction. Invalid transactions are rejected and never propagated to other nodes.  | Handling the http request is more work than validating the transaction. By standard http load balancing the number of posted transactions is the limiting factor, rejecting the transactions is cheap. |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model  | medium |
-| 5.2  | Posting valid, but impossible transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
+| 5.2  | Posting valid, but unusable transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
 | 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. Verify memory constraints on transaction pool | low |
 | 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |  Attack shown for ETH - investigate relevance see [Persistence](https://github.com/Aeternity/protocol/blob/master/GOSSIP.md#persistence) |   |
 |  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incoming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance; see [Peer Maintenance](https://github.com/Aeternity/protocol/blob/master/GOSSIP.md#peers-maintenance)| |   
@@ -418,7 +415,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 | 5.4.3.2  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 |  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, [locking up coins](https://github.com/Aeternity/protocol/tree/master/channels#incentives) and making the peer pay the channel closing fees. | N/A  |  Discouraged through incentives |  Needs further investigation |  |   |
-|  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channe; Discouraged through incentives |  Needs further investigation |  |  |
+|  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel; Discouraged through incentives |  Needs further investigation |  |  |
 |  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | Discouraged through incentives  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
 |  5.6.4 | Drop arbitrary packets on a state channel to disrupt or degrade communication between two peers. | N/A  |  Discouraged through incentives |  Needs further investigation |  |  High |
 
