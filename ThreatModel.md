@@ -140,61 +140,59 @@ We revised the updated information and relevant aspects and included them into t
 
 ### (1) Spoofing: Spoof user actions
 
-##### 1. Obtain private keys
-	(1.1.1) At generation time.
-		(1.1.1.1) Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
-		(1.1.1.2) Flawed implementation of key generation code
+
+	(1.1) Obtain private keys
+		(1.1.1) At generation time.
+			(1.1.1.1) Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
+			(1.1.1.2) Flawed implementation of key generation code
 					[1.1.1.2.1] Flawed Libsodium implememntation of key generation code
 					[1.1.1.2.2] Flawed Erlang implementation of key generation code
-	 (1.1.2) At rest / in storage.
-		(1.1.2.1) From local storage.
-		(1.1.2.2) Third-party storage (e.g. on-line wallets).  
-		(1.1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
-		(1.1.2.4) By neighbours on shared infrastructure.
-		(1.1.2.5) By operator of virtualized infrastructure.
-		(1.1.2.6) By malicious apps on mobile devices.
-	(1.1.3) Node run time.
-	(1.1.4) At logging time.
-	(1.1.5) In error messages.
-		(1.1.5.1) Errors caused by arbitrary corruption of files on file system.
-		(1.1.5.2) Errors caused by invalid program state
-		(1.1.5.3) Memory dump caused by an Erlang VM crash
+		(1.1.2) At rest / in storage.
+			(1.1.2.1) From local storage.
+			(1.1.2.2) Third-party storage (e.g. on-line wallets).
+			(1.1.2.3) Exploit cross-site scripting vulnerabilities browser-based wallets.
+			(1.1.2.4) By neighbours on shared infrastructure.
+			(1.1.2.5) By operator of virtualized infrastructure.
+			(1.1.2.6) By malicious apps on mobile devices.
+		(1.1.3) Node run time.
+		(1.1.4) At logging time.
+		(1.1.5) In error messages.
+			(1.1.5.1) Errors caused by arbitrary corruption of files on file system.
+			(1.1.5.2) Errors caused by invalid program state
+			(1.1.5.3) Memory dump caused by an Erlang VM crash
+
+	(1.2) Exploit vulnerabilities in authentication code
+		(1.2.1) Exploit incomplete or otherwise flawed signature verification
+			(1.2.1.1)  When validating transactions
+
+	(1.3) Exploit vulnerabilities in network communication
+		(1.3.1) Packet spoofing
+			(1.3.1.1) On-path packet injection
+			(1.3.1.2) Blind packet injection
+		(1.3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
+
+	(1.4) Vulnerabilities in node API
+		(1.4.1) Exploiting CORS to run arbitrary code on node
+		(1.4.2) Exploiting the state channel API
+		(1.4.3) Exploiting the HTTP API
+		(1.4.4) Executing a fun though an external API
 
  * **Past attacks**
-   *  [2012 | Generic | Ron was wrong, Whit is right | iacr eprint](https://eprint.iacr.org/2012/064.pdf)
-   *  [2012 | Generic | Mining Your Ps and Qs: Detection of Widespread Weak Keys in Network Devices | Usenix Security](https://www.usenix.org/system/files/conference/usenixsecurity12/sec12-final228.pdf)
-   *  [2016 | Generic | Weak Keys Remain Widespread in Network Devices | IMC'16](https://dl.acm.org/ft_gateway.cfm?id=2987486&type=pdf)
- 	* [2013 | Bitcoin | Weak crypto on Android](https://arstechnica.com/information-technology/2013/08/google-confirms-critical-android-crypto-flaw-used-in-5700-bitcoin-heist/).
- 	* [2011 | Bitcoin | Private keys stolen from wallet](https://bitcointalk.org/index.php?topic=16457.msg214423#msg214423)
- 	* [2017 | Bitcoin | MtGox wallet.dat file stolen (e.g. through exploit, rogue employee, back-up theft)](https://blog.wizsec.jp/2017/07/breaking-open-mtgox-1.html)
- 	* [2017 | Ethereum | Malicious wallet Providers](https://mybroadband.co.za/news/banking/214178-ethereum-wallet-provider-steals-account-keys-and-cashes-out.html)
- 	* [2017 | Ethereum | Exploit in Parity wallet](https://thehackernews.com/2017/07/ethereum-cryptocurrency-hacking.html)
- 	* [2017 | Ethereum | Bug in Parity wallet](https://www.theguardian.com/technology/2017/nov/08/cryptocurrency-300m-dollars-stolen-bug-ether)
- 	* [2018 | Ethereum | Bug/misconfiguration in client node](https://thehackernews.com/2018/06/ethereum-geth-hacking.html)
- 	* [2018 | Ethereum | Conrail wallet exploit](https://mashable.com/2018/06/11/coinrail-exchange-hack/?europe=true)
- 	* [2014 | Bitcoin | XSS wallet vulnerability](https://www.reddit.com/r/Bitcoin/comments/1n57uj/im_attempting_to_reach_a_security_contact_at/)
-
-##### 2. Exploit vulnerabilities in authentication code
-	(1.2) Exploit incomplete or otherwise flawed signature verification
-		(2.1.1)  when validating transactions
- * **Past attacks**
- 	* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
-	* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
-
-##### 3. Exploit vulnerabilities in network communication
-	(1.3.1) Packet spoofing
-		(1.3.1.1) On-path packet injection
-		(1.3.1.2) Blind packet injection   
-	(1.3.2) Exploit DNS & BGP vulnerabilities to redirect traffic to an impersonated wallet web service;
- * **Past attacks**
- 	* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
-
-##### 3. Vulnerabilities in node API
-	(1.3.3) Exploiting node API
-		(1.3.3.1) Exploiting CORS to run arbitrary code on node
-		(1.3.3.2) Exploiting the state channel API
-		(1.3.3.3) Exploiting the HTTP API
-		(1.3.3.4) Executing a fun though an external API
+*  [2012 | Generic | Ron was wrong, Whit is right | iacr eprint](https://eprint.iacr.org/2012/064.pdf)
+*  [2012 | Generic | Mining Your Ps and Qs: Detection of Widespread Weak Keys in Network Devices | Usenix Security](https://www.usenix.org/system/files/conference/usenixsecurity12/sec12-final228.pdf)
+*  [2016 | Generic | Weak Keys Remain Widespread in Network Devices | IMC'16](https://dl.acm.org/ft_gateway.cfm?id=2987486&type=pdf)
+* [2013 | Bitcoin | Weak crypto on Android](https://arstechnica.com/information-technology/2013/08/google-confirms-critical-android-crypto-flaw-used-in-5700-bitcoin-heist/).
+* [2011 | Bitcoin | Private keys stolen from wallet](https://bitcointalk.org/index.php?topic=16457.msg214423#msg214423)
+* [2017 | Bitcoin | MtGox wallet.dat file stolen (e.g. through exploit, rogue employee, back-up theft)](https://blog.wizsec.jp/2017/07/breaking-open-mtgox-1.html)
+* [2017 | Ethereum | Malicious wallet Providers](https://mybroadband.co.za/news/banking/214178-ethereum-wallet-provider-steals-account-keys-and-cashes-out.html)
+* [2017 | Ethereum | Exploit in Parity wallet](https://thehackernews.com/2017/07/ethereum-cryptocurrency-hacking.html)
+* [2017 | Ethereum | Bug in Parity wallet](https://www.theguardian.com/technology/2017/nov/08/cryptocurrency-300m-dollars-stolen-bug-ether)
+* [2018 | Ethereum | Bug/misconfiguration in client node](https://thehackernews.com/2018/06/ethereum-geth-hacking.html)
+* [2018 | Ethereum | Conrail wallet exploit](https://mashable.com/2018/06/11/coinrail-exchange-hack/?europe=true)
+* [2014 | Bitcoin | XSS wallet vulnerability](https://www.reddit.com/r/Bitcoin/comments/1n57uj/im_attempting_to_reach_a_security_contact_at/)
+* [2017 | Generic | Signature verification flaw 1](https://www.cvedetails.com/cve/CVE-2014-9934/)
+* [2017 | Generic | Signature verification flaw 2](https://www.cvedetails.com/cve/CVE-2017-2898/)
+* [2018 | Etheremum | BGP hijacking](https://www.theverge.com/2018/4/24/17275982/myetherwallet-hack-bgp-dns-hijacking-stolen-ethereum)
 
 ### (2) Tampering
 Tampering is closely related to spoofing and information disclosure.
@@ -317,11 +315,12 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 
 * Indeed, this falls under the threat of ["altcoin infanticide"](https://bitcointalk.org/index.php?topic=56675.0).
 
-		(6.1) EoP on the epoch node.
-			(6.1.1)	Exploitable vulnerabilities in AEVM leading to EoP
-	      (6.1.2) Exploit Erlang distribution to get access to node
-		(6.2) EoP in p2p network
-			(6.2.1) EoP of an arbitrary node to status of trusted node
+
+	(6.1) EoP on the epoch node.
+		(6.1.1)	Exploitable vulnerabilities in AEVM leading to EoP
+		(6.1.2) Exploit Erlang distribution to get access to node
+	(6.2) EoP in p2p network
+		(6.2.1) EoP of an arbitrary node to status of trusted node
 				(6.2.1.1) EoP though exploitabtion of API vulnerabilities;
 				(6.2.1.2) EoP through forged Epoch node distributions;
 
