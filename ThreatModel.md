@@ -159,6 +159,8 @@ We revised the updated information and relevant aspects and included them into t
 			(1.1.2.5) By operator of virtualized infrastructure.
 			(1.1.2.6) By malicious apps on mobile devices.
 		(1.1.3) Node run time.
+			(1.1.3.1) Via external interfaces.
+			(1.1.3.2) By obtaining access to the node.
 		(1.1.4) At logging time.
 		(1.1.5) In error messages.
 			(1.1.5.1) Errors caused by arbitrary corruption of files on file system.
@@ -344,7 +346,8 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes, e.g. from configuration file | API for storing keys in a hardware enclave / on external device | (a) Erlang ports should be closed; | May be difficult to solve|  | |
 |1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers by reading files stored on disk | API for storing keys in a hardware enclave |  N/A |  Low bar | | |
 |1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
-|  1.1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
+|  1.1.3.1 | Exploiting external interfaces | Penetration testing of  external interfaces of application: http, web services and noise |  |  | TODO: Define penetration testing | |
+|  1.1.3.2 | By obtaining access to the node  | | Standard unix ports and Erlang distribution daemon blocked for incoming requests |  | TODO:specify what needs to be closed?? | |
 | 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check encrypted submission to datalog | priority low |
 | 1.1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check error messages | priority medium |
 | 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | | priority medium |
