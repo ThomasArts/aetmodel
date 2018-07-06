@@ -32,7 +32,11 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 
 **State Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/Aeternity/protocol/tree/master/channels#terms), each node can have multiple state channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. Epoch nodes come with a state channel web-service API as a reference implementation.
 
-**Unusable transaction** is a transaction that is well-formed but cannot be completed due to insufficient balance or low value;
+**Transactions** A transaction is an artefact that you post to the blockchain to alter its state. There are many different kind of transactions, e.g. to transfer tokens from one account to another, to create a contract, to query an oracle, etc.
+If a transaction is syntactically incorrect it will just be ignored. Syntactic correct transaction can be classified in 3 groups:
+  * **Invalid** transactions are rejected by the validation algorithm. A reason could be that the nonce of a spend transaction is already used on chain, that the TTL (time-to-live) is less than the present height of the chain, etc. If the validation algorithm rejects it, it is an invalid transaction.
+  * **Unusable** transactions are also rejected by the validation algorithm, but only because they cannot be used at the moment, but potentially in the future. For example, a transaction that spends more tokens than it has in the account is unusable, but can become usable a few blocks later if another transaction transfers money to it.
+  * **Valid** transactions are transactions that are accepted by the validation algorithm and can be part of the next generated block. A miner is not forced to use a valid transaction in a generated block; miners are free to pick any number of valid transactions they prefer (e.g. depending on fees connected to them).
 
 
 ## System Model
