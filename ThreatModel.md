@@ -16,6 +16,8 @@ Documentation of threat model
 
 **Miner Node** is an Aeternity node with mining capability.
 
+**Noise protocol** [Crypto protocol based on Diffie-Hellman key agreement](http://noiseprotocol.org/noise.html) that we use with [specific handshake](https://github.com/aeternity/protocol/blob/master/SYNC.md) (**XK**) and encryption (ChaCHaPoly).
+
 **Node** (aka **Epoch node**) umbrella term for Aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
 Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.  
 
@@ -160,6 +162,8 @@ We revised the updated information and relevant aspects and included them into t
 			[1.1.2.6.2] By malicious wallet implementations on mobile devices
 			[1.1.2.6.2] Through cloud back-up of application data on mobile devices
 		(1.1.3) Node run time.
+			(1.1.3.1) Via external interfaces.
+			(1.1.3.2) By obtaining access to the node.
 		(1.1.4) At logging time.
 		(1.1.5) In error messages.
 			(1.1.5.1) Errors caused by arbitrary corruption of files on file system.
@@ -337,7 +341,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ## STRIDE Threat Trees
 
 For each threat tree, the tables below describe the ***leaf*** nodes AND parent nodes with ***one*** leaf.
-When a leaf node becomes a parent it is replaced by one or more leaf node entries.
+As a rule, when a leaf node becomes a parent it is replaced by one or more leaf node entries, except when justified by generic mitigation strategies (to avoid duplication).
 
 ### 1. (Node) Spoofing
 
@@ -345,23 +349,24 @@ When a leaf node becomes a parent it is replaced by one or more leaf node entrie
 |---|---|---|---|---|---|---|
 | 1.1.1.1  | Use of weak or flawed PRNGs may lead to generating keys that are predictable or brute-forceable  | Ensure best-practice PRNG is used | [Libsodium PRNG](https://download.libsodium.org/doc/generating_random_data/) is used | relevant for mobile devices - past attacks exist | | low priority (unlikely) |
 | 1.1.1.2  | Vulnerabilities in key generation implementation leading to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
-| 1.1.1.2.1  | Vulnerabilities in the crypto library implementation  | Extensive testing of the underlying crypto library | Short patching cycle |   |   | low priority (unlikely)|
-| 1.1.1.2.2  | Vulnerabilities in the Epoch crypto functionality implementation | Extensive testing of the Epoch crypto functionality | Short patching cycle |   |   | medium priority |
+| 1.1.1.2.1  | Vulnerabilities in the  crypto library implementation of key generation implementation leading to generation of keys that are predictable or brute-forceable  | Extensive testing of the underlying crypto library | Short patching cycle |   |   | low priority (unlikely)|
+| 1.1.1.2.2  | Vulnerabilities in the Epoch crypto functionality implementation leading to generation of keys that are predictable or brute-forceable | Extensive testing of the Epoch crypto functionality | Short patching cycle |   |   | medium priority |
 |  1.1.2.1 | Vulnerabilities in the client platform, exploitable through trojans or viruses |  N/A | N/A  | Out of scope (OOS) | | |
 |  1.1.2.2    | Vulnerabilities in 3rd party wallets and applications | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.1.2.3     |  Vulnerabilities in web services allowing an adversary to execute code on nodes to reveal the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes, e.g. from configuration file | API for storing keys in a hardware enclave / on external device | (a) Erlang ports should be closed; | May be difficult to solve|  | |
 |1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers by reading files stored on disk | API for storing keys in a hardware enclave |  N/A |  Low bar | | |
 |1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
-|  1.1.3 | Remote exploitation of client applications at run-time | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
+|  1.1.3.1 | Exploiting external interfaces | Penetration testing of  external interfaces of application: http, web services and noise |  |  | TODO: Define penetration testing | |
+|  1.1.3.2 | Exploatation by obtaining access to the node  | | Standard unix ports and Erlang distribution daemon blocked for incoming requests |  | TODO:specify what needs to be closed?? | |
 | 1.1.4  | Client implementation exposing private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check encrypted submission to datalog | priority low |
 | 1.1.5  | Error messages exposing private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check error messages | priority medium |
 | 1.1.5.1  |  Exposure of sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | | priority medium |
-| 1.1.5.2  |  Exposure of sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: none yet | priority medium |
-| 1.1.5.3  |  Exposure of sensitiv information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
+| 1.1.5.2  |  Exposing sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: none yet | priority medium |
+| 1.1.5.3  |  Exposing sensitive information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
 |  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
-|  1.2.2 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  1.3.1.1 |  Adversary observing the normal packet flow and inserting own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
+|  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
+|  1.3.1.1 |  Adversary observing the normal packet flow and inserting own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol with specific handshake and encryption |   |
 |  1.3.1.2 |  Adversary inserting own arbitrary packets without observing the packet flow. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
 |  1.3.2 |  DNS attack rerouting users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
 |  1.4.1 |  Web service with malicious code exploiting internal node APIs  | Enforce strict origin policy  | N/A  | Needs further investigation  | |   |
@@ -370,14 +375,15 @@ When a leaf node becomes a parent it is replaced by one or more leaf node entrie
 |  1.4.4 |  Adversary externally executing a fun over the nodes API  | Security testing of the API  | N/A  | Needs further investigation  | |  High (devastating consequences) |
 
 
+
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 2.1.1  | Connection integrity is not implemented | Ensure channel integrity |   |   Prevented through use of Noise protocol |  Verify correct implementation using a QuickCheck model ||  
-| 2.1.2  | Weak algorithms used to ensure connection integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |Prevented through correct implementation of the Noise protocol |   Verify correct implementation using a QuickCheck model|   |  
+| 2.1.1  | Connection integrity is not implemented | Ensure channel integrity |   |   Prevented using the Noise protocol with specific handshake and encryption |  Verify correct implementation using a QuickCheck model ||  
+| 2.1.2  | Weak algorithms used to ensure connection integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   | Prevented using the Noise protocol with specific handshake and encryption |   Verify correct implementation using a QuickCheck model|   |  
 | 2.1.3  | Connection security compromised due to nonce wrap back |  |  | Nonce wraps back after 2^64 - 1 messages, long over channel lifetime |  |   |
-|  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
-|  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
+|  2.2.1 | Message integrity verified  | Ensure message integrity  |   | Prevented using the Noise protocol with specific handshake and encryption | Verify correct implementation using a QuickCheck model  ||  
+|  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented using the Noise protocol with specific handshake and encryption |  Verify correct implementation using a QuickCheck model ||  
 |  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implementation |   |   |  Discuss whether this is a threat |   |
 |  2.4.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.4.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
@@ -405,8 +411,9 @@ When a leaf node becomes a parent it is replaced by one or more leaf node entrie
 ### 4. Information Disclosure
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 4.1.1  |  Perform a MitM attack on the communication over a state channel  | If naming system is used - implement reliable mapping between peer names and keypairs; correct implementation of the Noise protocol |   |   |   |   |
-| 4.1.2  |  Adversary performs a selective DoS attack on the state channel to force peer to revert to arbitration and (partly) disclose state channel content | Ensure arbitration requires minimum information about the messages exchanged on the state channel  | N/A  |   |   |   ||
+| 4.1.1  |  Perform a MitM attack on the communication over a state channel  | If naming system is used - implement reliable mapping between peer names and keypairs; correct implementation of Noise protocol with specific handshake and encryption |   |   |   |   |
+| 4.1.2  |  Adversary performs a selective DoS attack on the state channel to force peer to revert to arbitration and (partly) disclose state channel content | Ensure arbitration requires minimum information about the messages exchanged on the state channel  | N/A  |   |   |   |
+|   |   |   |   |   |   |   |
 
 ### 5. Denial of service
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
