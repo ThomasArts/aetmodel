@@ -147,8 +147,8 @@ We revised the updated information and relevant aspects and included them into t
 		(1.1.1) At generation time.
 			(1.1.1.1) Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)
 			(1.1.1.2) Flawed implementation of key generation code
-					[1.1.1.2.1] Flawed Libsodium implememntation of key generation code
-					[1.1.1.2.2] Flawed Erlang implementation of key generation code
+					(1.1.1.2.1) Flawed Libsodium implememntation of key generation code
+					(1.1.1.2.2) Flawed Erlang implementation of key generation code
 		(1.1.2) At rest / in storage.
 			(1.1.2.1) From local storage.
 			(1.1.2.2) Third-party storage (e.g. on-line wallets).
@@ -156,6 +156,9 @@ We revised the updated information and relevant aspects and included them into t
 			(1.1.2.4) By neighbours on shared infrastructure.
 			(1.1.2.5) By operator of virtualized infrastructure.
 			(1.1.2.6) By malicious apps on mobile devices.
+			[1.1.2.6.1] By malicious colocated apps on mobile devices
+			[1.1.2.6.2] By malicious wallet implementations on mobile devices
+			[1.1.2.6.2] Through cloud back-up of application data on mobile devices
 		(1.1.3) Node run time.
 		(1.1.4) At logging time.
 		(1.1.5) In error messages.
@@ -164,8 +167,8 @@ We revised the updated information and relevant aspects and included them into t
 			(1.1.5.3) Memory dump caused by an Erlang VM crash
 
 	(1.2) Exploit vulnerabilities in authentication code
-		(1.2.1) Exploit incomplete or otherwise flawed signature verification
-			(1.2.1.1)  When validating transactions
+		(1.2.1) Incomplete or otherwise flawed signature verification
+		(1.2.2) Incomplete or otherwise flawed transaction validation
 
 	(1.3) Exploit vulnerabilities in network communication
 		(1.3.1) Packet spoofing
@@ -307,6 +310,11 @@ Transactions may validate but nevertheless not be possible to include in a block
  	* [2018 | Ethereum | Unhandled exception vulnerability exists in Ethereum API](https://nvd.nist.gov/vuln/detail/CVE-2017-12119)
  	* [2017 | Bitcoin | Hijacking Bitcoin: routing attacks on cryptocurrencies | IEEE S&P](https://btc-hijack.ethz.ch/)
 
+* **Background information**
+	 * [2018 | Aeternity state channel incentives](https://github.com/Aeternity/protocol/tree/master/channels#incentives)
+	 * [2018 | Aeternity state channel fees](https://github.com/Aeternity/protocol/tree/master/channels#fees)
+
+
 ### (6) Elevation of privilege
 The working assumption is that the user model is flat, i.e. there is no difference between the privileges of any two nodes.
 Hence, if the assumption is correct, the elevation of privilege threat tree only applies to underlying environment and is orthogonal to the software developed in this project.
@@ -328,36 +336,38 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 
 ## STRIDE Threat Trees
 
+For each threat tree, the tables below describe the ***leaf*** nodes AND parent nodes with ***one*** leaf.
+When a leaf node becomes a parent it is replaced by one or more leaf node entries.
+
 ### 1. (Node) Spoofing
 
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 1.1.1.1  | Using weak or flawed PRNGs may lead to generating keys that are predictable or brute-forceable  | Ensure best-practice PRNG is used | [Libsodium PRNG](https://download.libsodium.org/doc/generating_random_data/) is used | relevant for mobile devices - past attacks exist | | low priority (unlikely) |
-| 1.1.1.2  | Vulnerabilities in key generation implementation can lead to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
+| 1.1.1.1  | Use of weak or flawed PRNGs may lead to generating keys that are predictable or brute-forceable  | Ensure best-practice PRNG is used | [Libsodium PRNG](https://download.libsodium.org/doc/generating_random_data/) is used | relevant for mobile devices - past attacks exist | | low priority (unlikely) |
+| 1.1.1.2  | Vulnerabilities in key generation implementation leading to generation of keys that are predictable or brute-forceable  | Verify Key generation implementation and use keys of sufficient length |  | Private keys are 256 bits: both for P2P connections as well as for signing transactions. relevant for mobile devices - past attacks exist  | TODO: verify that the user cannot accidentally use a key with less than 256 bits;  | low priority (unlikely)|
 | 1.1.1.2.1  | Vulnerabilities in the crypto library implementation  | Extensive testing of the underlying crypto library | Short patching cycle |   |   | low priority (unlikely)|
 | 1.1.1.2.2  | Vulnerabilities in the Epoch crypto functionality implementation | Extensive testing of the Epoch crypto functionality | Short patching cycle |   |   | medium priority |
-|  1.1.2.1 | Vulnerabilities in client platform, exploited through trojans or viruses can expose private keys   |  N/A | N/A  | Out of scope (OOS) | | |
-|  1.1.2.2    | Vulnerabilities in 3rd party wallets and applications can expose private keys  | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
-|1.1.2.3     | Vulnerabilities in web services may allow an adversary to execute code on nodes, potentially revealing the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|  1.1.2.1 | Vulnerabilities in the client platform, exploitable through trojans or viruses |  N/A | N/A  | Out of scope (OOS) | | |
+|  1.1.2.2    | Vulnerabilities in 3rd party wallets and applications | N/A  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
+|1.1.2.3     |  Vulnerabilities in web services allowing an adversary to execute code on nodes to reveal the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes, e.g. from configuration file | API for storing keys in a hardware enclave / on external device | (a) Erlang ports should be closed; | May be difficult to solve|  | |
 |1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers by reading files stored on disk | API for storing keys in a hardware enclave |  N/A |  Low bar | | |
 |1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
-|  1.1.3 | Remote exploitation of client applications  | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
-| 1.1.4  | Client implementation can inadvertently expose private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check encrypted submission to datalog | priority low |
-| 1.1.5  | An error message can inadvertently expose private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check error messages | priority medium |
-| 1.1.5.1  |  Exposing sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | | priority medium |
-| 1.1.5.2  |  Exposing sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: none yet | priority medium |
-| 1.1.5.3  |  Exposing sensitive information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
+|  1.1.3 | Remote exploitation of client applications at run-time | Penetration testing of  external interfaces of application (http, noise) | Erlang distribution daemon blocked for incoming requests |  | TODO: Define penetration testing | |
+| 1.1.4  | Client implementation exposing private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check encrypted submission to datalog | priority low |
+| 1.1.5  | Error messages exposing private keys directly to a user or in logs and memory dumps | a. Ensure code never raises an error with  private key as argument; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check error messages | priority medium |
+| 1.1.5.1  |  Exposure of sensitive information - such as private keys - through arbitrary corruption of files | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) | Example: aec_keys:setup_sign_keys/2; aec_keys:setup_peer_keys/2 | | priority medium |
+| 1.1.5.2  |  Exposure of sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: none yet | priority medium |
+| 1.1.5.3  |  Exposure of sensitiv information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
 |  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
-|  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  1.3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
-|  1.3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
-|  1.3.2 |  DNS attack that reroutes users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
-|  1.3.3.1 |  Adversary runs a web service with malicious code exploiting internal node APIs  | Enforce strict origin policy  | N/A  | Needs further investigation  | |   |
-|  1.3.3.2 |  Exploiting the state channel HTTP API  | Security testing of the API  | N/A  | Needs further investigation  | |   |
-|  1.3.3.2 |  Exploiting the node's HTTP APIs  | Security testing of the API  | N/A  | Needs further investigation  | |   |
-|  1.3.3.4 |  Externally executing a fun over the nodes API  | Security testing of the API  | N/A  | Needs further investigation  | |  High (devastating consequences) |
-
+|  1.2.2 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
+|  1.3.1.1 |  Adversary observing the normal packet flow and inserting own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
+|  1.3.1.2 |  Adversary inserting own arbitrary packets without observing the packet flow. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
+|  1.3.2 |  DNS attack rerouting users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
+|  1.4.1 |  Web service with malicious code exploiting internal node APIs  | Enforce strict origin policy  | N/A  | Needs further investigation  | |   |
+|  1.4.2 |  Adversary exploiting the state channel HTTP API  | Security testing of the API  | N/A  | Needs further investigation  | |   |
+|  1.4.3 |  Adversary exploiting the node's HTTP APIs  | Security testing of the API  | N/A  | Needs further investigation  | |   |
+|  1.4.4 |  Adversary externally executing a fun over the nodes API  | Security testing of the API  | N/A  | Needs further investigation  | |  High (devastating consequences) |
 
 
 ### 2. Tampering
@@ -390,15 +400,13 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  3.2.1 | Epoch node repudiating a past transaction that is not on the chain | N/A  | N/A  | OOS; Since a transaction on the chain is signed with private keys, only possible due to loss of private keys; safeguarding private keys is responsibility of the node  |   |   |
 |  3.2.2 | Epoch node repudiating a past transaction that is on the chain | N/A |  N/A | Needs further investigation   |   |   |
 |  3.2.2.1 |  Epoch node repudiating timely reception of oracle response (within originally posted TTL)  |  N/A | N/A  |  Needs further investigation |   |   |
-|  3.2.2.2 | Oracle node repudiating late submission of a query response  |  N/A | adjust miner incentives  | Needs further investigation; since the oracle has no control (?) over when the transaction enters the chain, it can claim that it has posted an oracle response transaction "on time", but no miner picked it up;  |   |   |
-|   |   |   |   |   |   |   |
+|  3.2.2.2 | Oracle node repudiating late submission of a query response  |  N/A | adjust miner incentives  | Needs further investigation; since the oracle has no control (?) over when the transaction enters the chain, it can claim that it has posted an oracle response transaction "on time", but no miner picked it up;  |   |   ||
 
 ### 4. Information Disclosure
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
 | 4.1.1  |  Perform a MitM attack on the communication over a state channel  | If naming system is used - implement reliable mapping between peer names and keypairs; correct implementation of the Noise protocol |   |   |   |   |
-| 4.1.2  |  Adversary performs a selective DoS attack on the state channel to force peer to revert to arbitration and (partly) disclose state channel content | Ensure arbitration requires minimum information about the messages exchanged on the state channel  | N/A  |   |   |   |
-|   |   |   |   |   |   |   |
+| 4.1.2  |  Adversary performs a selective DoS attack on the state channel to force peer to revert to arbitration and (partly) disclose state channel content | Ensure arbitration requires minimum information about the messages exchanged on the state channel  | N/A  |   |   |   ||
 
 ### 5. Denial of service
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
@@ -418,11 +426,6 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 |  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel; Discouraged through incentives |  Needs further investigation |  |  |
 |  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | Discouraged through incentives  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
 |  5.6.4 | Drop arbitrary packets on a state channel to disrupt or degrade communication between two peers. | N/A  |  Discouraged through incentives |  Needs further investigation |  |  High |
-
-
- * **Past attacks/Background information**
- 	* [2018 | Aeternity state channel incentives](https://github.com/Aeternity/protocol/tree/master/channels#incentives)
-	* [2018 | Aeternity state channel fees](https://github.com/Aeternity/protocol/tree/master/channels#fees)
 
 
 
