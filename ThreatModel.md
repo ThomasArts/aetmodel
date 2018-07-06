@@ -16,6 +16,8 @@ Documentation of threat model
 
 **Miner Node** is an Aeternity node with mining capability.
 
+**Noise protocol** [Crypto protocol based on Diffie-Hellman key agreement](http://noiseprotocol.org/noise.html) that we use with [specific handshake](https://github.com/aeternity/protocol/blob/master/SYNC.md) (**XK**) and encryption (ChaCHaPoly).
+
 **Node** (aka **Epoch node**) umbrella term for Aeternity protocol participant; includes miner nodes, client nodes, peers, etc.
 Identified by a URI consisting of the protocol 'aenode://', the public key, an '@' character, the hostname or IP number, a ':' character and the Noise port number.  
 
@@ -350,7 +352,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 | 1.1.5.3  |  Exposing sensitive information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
 |  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
 |  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
-|  1.3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol |   |
+|  1.3.1.1 |  Adversary can observe the normal packet flow and insert own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol with specific handshake and encryption |   |
 |  1.3.1.2 |  Adversary cannot observe the packet flow but inserts own arbitrary packets. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
 |  1.3.2 |  DNS attack that reroutes users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
 |  1.3.3.1 |  Adversary runs a web service with malicious code exploiting internal node APIs  | Enforce strict origin policy  | N/A  | Needs further investigation  | |   |
@@ -363,11 +365,11 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 2.1.1  | Connection integrity is not implemented | Ensure channel integrity |   |   Prevented through use of Noise protocol |  Verify correct implementation using a QuickCheck model ||  
-| 2.1.2  | Weak algorithms used to ensure connection integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   |Prevented through correct implementation of the Noise protocol |   Verify correct implementation using a QuickCheck model|   |  
+| 2.1.1  | Connection integrity is not implemented | Ensure channel integrity |   |   Prevented using the Noise protocol with specific handshake and encryption |  Verify correct implementation using a QuickCheck model ||  
+| 2.1.2  | Weak algorithms used to ensure connection integrity | Use cryptographically strong and well tested crypto algorithms and implementations  |   | Prevented using the Noise protocol with specific handshake and encryption |   Verify correct implementation using a QuickCheck model|   |  
 | 2.1.3  | Connection security compromised due to nonce wrap back |  |  | Nonce wraps back after 2^64 - 1 messages, long over channel lifetime |  |   |
-|  2.2.1 | Message integrity verified  | Ensure message integrity  |   |   Prevented through correct implementation of the Noise protocol | Verify correct implementation using a QuickCheck model  ||  
-|  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented through correct implementation of the Noise protocol |  Verify correct implementation using a QuickCheck model ||  
+|  2.2.1 | Message integrity verified  | Ensure message integrity  |   | Prevented using the Noise protocol with specific handshake and encryption | Verify correct implementation using a QuickCheck model  ||  
+|  2.2.2 | Message integrity is verified, but implementation is incomplete or flawed  | Use cryptographically strong and well tested crypto algorithms and implementations   |   |   Prevented using the Noise protocol with specific handshake and encryption |  Verify correct implementation using a QuickCheck model ||  
 |  2.3 | Order of transactions included  in a block is modified (due to a bug or malicious intent) | Correct node implementation |   |   |  Discuss whether this is a threat |   |
 |  2.4.1 | Nodes do not verify block validity before adding it to the blockchain  | Correct implementation of block validity verification in node implementation |  Strong incentives for nodes to validate blocks |   |  Verify correct implementation using a QuickCheck model |   |
 |  2.4.2 | Nodes verify block validity, but verification implementation is incomplete or flawed  | Correct implementation of block validity verification in node implementation |    |   |  Verify correct implementation using a QuickCheck model |   |
@@ -396,7 +398,7 @@ Hence, if the assumption is correct, the elevation of privilege threat tree only
 ### 4. Information Disclosure
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
-| 4.1.1  |  Perform a MitM attack on the communication over a state channel  | If naming system is used - implement reliable mapping between peer names and keypairs; correct implementation of the Noise protocol |   |   |   |   |
+| 4.1.1  |  Perform a MitM attack on the communication over a state channel  | If naming system is used - implement reliable mapping between peer names and keypairs; correct implementation of Noise protocol with specific handshake and encryption |   |   |   |   |
 | 4.1.2  |  Adversary performs a selective DoS attack on the state channel to force peer to revert to arbitration and (partly) disclose state channel content | Ensure arbitration requires minimum information about the messages exchanged on the state channel  | N/A  |   |   |   |
 |   |   |   |   |   |   |   |
 
