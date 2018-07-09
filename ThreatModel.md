@@ -375,7 +375,6 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 |  1.4.4 |  Adversary externally executing a fun over the nodes API  | Security testing of the API  | N/A  | Needs further investigation  | |  High (devastating consequences) |
 
 
-
 ### 2. Tampering
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
@@ -445,32 +444,32 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 | 6.2.1.2  | Create custom distribution of Epoch node code with a modified set of trusted nodes	 | N/A  | Encourage use of "genuine" epoch nodes |  Discuss potential as "existential" risk to the network |   |   | |
 
 
-## Notes
+## Questions and concerns
 
- * **Questions, concerns**
+1. Reusing cryptographic keys for different functions is considered bad practice but [commonly done in public key cryptography](https://crypto.stanford.edu/RealWorldCrypto/slides/kenny.pdf).
+Considering that the "Private Keys" (see **Assets**) are used to both authenticate nodes and authorize transactions, it is **essential** to review the security of this reuse pattern.
 
-	* Privilege levels for the code - what is the correct model?
+* The ***privilege levels*** is the system must be documented to add further details to the threat model.
 
-	* Password for keypair protection stored in CONFIG file OR as an environment variable is NOT a good practice (example in aec_keys:start_worker/0; config in epoch_config_schema.json)
+* Password for keypair protection stored in CONFIG file OR as an environment variable is NOT a good practice (example in aec_keys:start_worker/0; config in epoch_config_schema.json)
 
-	* In epoch_config_schema.json: ***such defaults provide a false sense of security and should not be used.***
-	* In epoch_config_schema.json: "used to encrypt the peer key-pair files" - it does not make sense to encrypt the public key file (investigate if that is actually done).
+* In epoch_config_schema.json: "Password used to encrypt the peer key-pair files - if left blank `password` will be used." ***Such defaults provide a false sense of security and should not be used.***
+* In epoch_config_schema.json: "used to encrypt the peer key-pair files" - it does not make sense to encrypt the public key file (investigate if that is actually done).
 
 	"peer_password" : {
 			"description" :
 			"Password used to encrypt the peer key-pair files - if left blank `password` will be used",
 			"type" : "string"
 		}
+* **[Discussion]** In aec_peers, '-type peer\_id(): What is the consideration behind using the public key (and not e.g. a hash of it) as peer id?
 
-* **[Undiscussed]** In aec_peers, '-type peer\_id(): What is the consideration behind using the public key (and not e.g. a hash of it) as peer id?
-
-* **[Undiscussed]** In epoch_config_schema.json: ***description contradicts defaults***
+* **[Discussion]** In epoch_config_schema.json: ***Is it intended that the default contradicts the comment?***
 	  "extra_args" : { "description" : "Extra arguments to pass to the miner executable binary. The safest choice is specifying no arguments i.e. empty string.",
 		                                    "type" : "string",
 		                                    "default": "-t 5"
 		                                },
 
-* **[Undiscussed]** In epoch_config_schema.json: ***consider placing such controls in a separate file - otherwise there is a high risk of deliberately misleading users to make damaging changes, this can damage availability.***
+* **[Discussion]** In epoch_config_schema.json: ***consider placing such controls in a separate file - otherwise there is a high risk of deliberately misleading users to make damaging changes, this can damage availability.***
 		"node_bits" : {
 		"description" : "Number of bits used for representing a node in the Cuckoo Cycle problem. It affects both PoW generation (mining) and verification. WARNING: Changing this makes the node incompatible with the chain of other nodes in the network, do not change from the default unless you know what you are doing.",
 		                                    "type": "integer",
