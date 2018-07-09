@@ -32,11 +32,15 @@ The test aims to identify the target's strengths and vulnerabilities, including 
 
 **State Channel** [is an off-chain method for two peers to exchange state updates](https://github.com/Aeternity/protocol/tree/master/channels#terms), each node can have multiple state channels and a pair of nodes can also have multiple channels between each other, which should be multiplexed over one connection. Epoch nodes come with a state channel web-service API as a reference implementation.
 
-**Transactions** A transaction is an artefact that you post to the blockchain to alter its state. There are many different kind of transactions, e.g. to transfer tokens from one account to another, to create a contract, to query an oracle, etc.
-If a transaction is syntactically incorrect it will just be ignored. Syntactic correct transaction can be classified in 3 groups:
-  * **Invalid** transactions are rejected by the validation algorithm. A reason could be that the nonce of a spend transaction is already used on chain, that the TTL (time-to-live) is less than the present height of the chain, etc. If the validation algorithm rejects it, it is an invalid transaction.
-  * **Unusable** transactions are also rejected by the validation algorithm, but only because they cannot be used at the moment, but potentially in the future. For example, a transaction that spends more tokens than it has in the account is unusable, but can become usable a few blocks later if another transaction transfers money to it.
-  * **Valid** transactions are transactions that are accepted by the validation algorithm and can be part of the next generated block. A miner is not forced to use a valid transaction in a generated block; miners are free to pick any number of valid transactions they prefer (e.g. depending on fees connected to them).
+**Transactions** A transaction is an artefact that you post to the blockchain to alter its state. There are many kinds of transactions, e.g. to transfer tokens from one account to another, to create a contract, to query an oracle, etc.
+If a transaction is syntactically incorrect it will just be ignored.
+Syntactically correct transactions can be classified in 3 groups:
+  * **Invalid** transactions are rejected by the validation algorithm. A reason could be that the nonce of a spend transaction is already used on chain, that the TTL (time-to-live) is less than the present height of the chain, etc.
+	If the validation algorithm rejects a transaction, it is invalid.
+  * **Unusable** transactions are rejected by the validation algorithm, because they cannot be used at the moment. However, they  can potentially be used in the future.
+	For example, a transaction that spends more tokens than it has in the account is unusable, but can become usable a few blocks later if another transaction transfers money to it.
+  * **Valid** transactions are accepted by the validation algorithm.
+	They can be part of the next generated block. A miner is not forced to use a valid transaction in a generated block; miners are free to pick any number of valid transactions they prefer (e.g. depending on fees connected to them).
 
 
 ## System Model
@@ -64,8 +68,7 @@ High-level features:
 3. **Oracle mechanism** ~ An oracle operator scans the blockchain for query transactions and posts answers to those queries to the chain.
 4. **Naming service** - allows to claim a name;
 5. **State channels** - allow offline transactions;
-	* Opening the channel
-	* Closing the channel
+	* Opening and closing the channel [incurs fees](https://github.com/aeternity/protocol/blob/master/channels/README.md#incentives).
 6. **Privacy** - currently a non-issue;
 7. **Communication with nodes** - "seed" nodes provided by Aeternity, new nodes from the network through gossiping.
 8. **Transaction fees**
@@ -158,9 +161,9 @@ We revised the updated information and relevant aspects and included them into t
 			(1.1.2.4) By neighbours on shared infrastructure.
 			(1.1.2.5) By operator of virtualized infrastructure.
 			(1.1.2.6) By malicious apps on mobile devices.
-			[1.1.2.6.1] By malicious colocated apps on mobile devices
-			[1.1.2.6.2] By malicious wallet implementations on mobile devices
-			[1.1.2.6.2] Through cloud back-up of application data on mobile devices
+				(1.1.2.6.1) By malicious colocated apps on mobile devices
+				(1.1.2.6.2) By malicious wallet implementations on mobile devices
+				(1.1.2.6.2) Through cloud back-up of application data on mobile devices
 		(1.1.3) Node run time.
 			(1.1.3.1) Via external interfaces.
 			(1.1.3.2) By obtaining access to the node.
@@ -214,7 +217,7 @@ Tampering is closely related to spoofing and information disclosure.
 			(2.2.1) No message integrity
 			(2.2.2) Weak message integrity;
 		(2.3) Tampering with the ordering of transactions included in a block
-			(2.3.1) Tampering the timestamp in mined blocks
+			[2.3.1] Tampering the timestamp in mined blocks
 		(2.4) Tampering with block validity
 			(2.4.1) No verification of block validity
 			(2.4.2) Weak verification of block validity
@@ -224,7 +227,7 @@ Tampering is closely related to spoofing and information disclosure.
 			(2.5.3) Violation of transaction integrity by a node prior to including in a block
 		(2.6) Tampering with keys of epoch nodes
 			(2.6.1) Replacing private keys of miner nodes
-			(2.6.2) Replacing public key of miner beneficiary
+			[2.6.2] Replacing public key of miner beneficiary
 		(2.7) Tampering with the persistent copy of the blockchain database (see Note 2.1)
 			(2.7.1) Tampering the genesis blocks
 			(2.7.2) Tampering blocks
@@ -282,13 +285,13 @@ post enormous amounts of transactions to the network, it could potentially impac
 Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this* validated for each new block candidate.  
 
 	(5.1) Posting invalid transactions.
-	(5.2) Posting valid, but impossible transactions
-			[5.1.1] Resubmitting unusable transactions directly to a node
-			[5.1.2] Gossiping unusable transactions through the p2p network (related to 5.4.2.1)
+	(5.2) Posting unusable transactions
+			[5.2.1] Resubmitting unusable transactions directly to a node
+			[5.2.2] Gossiping unusable transactions through the p2p network (related to 5.4.2.1)
 	(5.3) Exploiting memory limitations
-		[5.3.1] Memory leaks in cleaning transaction pool
-		[5.3.2] Overloading memory with atoms
-		[5.3.3] Overloading memory with non-garbage-collected processes
+		(5.3.1) Memory leaks in cleaning transaction pool
+		(5.3.2) Overloading memory with atoms
+		(5.3.3) Overloading memory with non-garbage-collected processes
 	(5.4) Exploiting network or communication vulnerabilities to degrade or deny service
 		(5.4.1) Launch Eclipse attacks against a node or a set of nodes
 			(5.4.1.1) Eclipse by connection monopolization
@@ -356,7 +359,10 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 |1.1.2.3     |  Vulnerabilities in web services allowing an adversary to execute code on nodes to reveal the wallet| Security Testing  |  N/A | OOS; NOTE: Risk of multiple account compromise   | | |
 |1.1.2.4  | Competing nodes running on shared infrastructure may leak keys of neighbour nodes, e.g. from configuration file | API for storing keys in a hardware enclave / on external device | (a) Erlang ports should be closed; | May be difficult to solve|  | |
 |1.1.2.5  | Operators of virtualized infrastructure may obtain keys of nodes in virtual containers by reading files stored on disk | API for storing keys in a hardware enclave |  N/A |  Low bar | | |
-|1.1.2.6  | Malicious mobile applications with access to file system may leak Epoch node private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  This might be very specific (and highly relevant) to Aeternity since it envisions that mobile devices could/will run Epoch nodes | | |
+|1.1.2.6.1  | Malicious mobile applications colocated with an Epoch node or wallet may leak the private key | Leverage hardware-supported features  (e.g. ARM TrustZone) to protect private key |  N/A |  | | |
+|1.1.2.6.2  | Malicious wallet implementations may *leak* Epoch node private keys | Develop applications that leverage hardware-supported features  (e.g. ARM TrustZone) to maintain key security while providing the necessary crypto services to e.g. wallets and Epoch nodes |  N/A |  | | |
+|1.1.2.6.3  | Malicious wallet implementations may *use* private keys to sign arbitrary transactions | N/A |  N/A | Needs further investigation | | |
+|1.1.2.6.4  | Applications may leak individual private keys through cloud back-ups | N/A |  Disable  cloud back-ups for relevant applications |  | | |
 |  1.1.3.1 | Exploiting external interfaces | Penetration testing of  external interfaces of application: http, web services and noise |  |  | TODO: Define penetration testing | |
 |  1.1.3.2 | Exploatation by obtaining access to the node  | | Standard unix ports and Erlang distribution daemon blocked for incoming requests |  | TODO:specify what needs to be closed?? | |
 | 1.1.4  | Client implementation exposing private keys in logs and memory dumps | a. Ensure code never logs private key; b. User private keys are not handled by node (peer key and mining key are); c. Never send client logs/memory dumps unencrypted over public network; | Ensure secure access to monitoring software (datalog) |  | TODO: check encrypted submission to datalog | priority low |
@@ -365,7 +371,7 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 | 1.1.5.2  |  Exposing sensitive information - such as private keys - through logs and crash dumps | Ensure data considered security sensitive not exposed in logs unless explicitly unusable | Ensure secure access to monitoring software (datalog) |  | Example: none yet | priority medium |
 | 1.1.5.3  |  Exposing sensitive information - such as private keys - through the Erlang VM crash dump | Minimize or eradicate vulnerabilities leading to Erlang VM crashes | Rapid patching of identified vulnerabilities |  | Example: none yet | priority medium |
 |  1.2.1 | Code flaws in signature verification can be exploited to spoof user actions | Thoroughly and continuously test signature verification code;  | Exclude/ignore outdated clients (?)  |   | TODO: review robustness of signing | |
-|  1.2.1.1 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
+|  1.2.2 |  Code flaw in transaction validation can be exploited to spoof user actions | A binary serialization of each transactions is signed with the private key of the accounts that may get their balances reduced.  |   | Signing is performed using NaCL cryptographic signatures (implemented in LibSodium). Forging a signature is considered extremely difficult. The LibSodium library has an active user community (*has it been certified?*). LibSodium is connected via the Erlang enacl library (*version ...*), which has been reviewed for security violations.  | TODO: Check libsodium guarantees and update to latest version of enacl | |
 |  1.3.1.1 |  Adversary observing the normal packet flow and inserting own packets. | Enforce transport integrity  |   |  | Prevented using the Noise protocol with specific handshake and encryption |   |
 |  1.3.1.2 |  Adversary inserting own arbitrary packets without observing the packet flow. | Enforce transport integrity  | Transport layer security  |  | Prevented using the Noise protocol |   |
 |  1.3.2 |  DNS attack rerouting users to a scam site collecting user's login credentials | N/A  | N/A  | OOS  | |   |
@@ -418,16 +424,22 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 |  Tree Node |Explanation   | Developer Mitigation   | Operational Mitigation   | Notes   | Actions | Priority |
 |---|---|---|---|---|---|---|
 | 5.1  | Posting invalid transactions  | The node that receives a transaction validates this transaction. Invalid transactions are rejected and never propagated to other nodes.  | Handling the http request is more work than validating the transaction. By standard http load balancing the number of posted transactions is the limiting factor, rejecting the transactions is cheap. |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model  | medium |
-| 5.2  | Posting valid, but unusable transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
-| 5.3  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. Verify memory constraints on transaction pool | low |
+| 5.2  | Posting unusable transactions  | Validation is light-weight and ensures that if the transaction is accepted in a block candidate fee and gas can be paid.  | Valid transactions have a configurable TTL that determines how long a transaction may stay in the memory pool. By default a node is configured to have a transaction in the pool for at most 256 blocks.  |   |   |   |
+| 5.2.1  | Nodes may resubmit unusable transactions to a arbitrary node to cause a DoS  | Needs further investigation.  | Needs further investigation.  |   |   |   |
+| 5.2.2  | Nodes (both malicious and benign) may flood the the p2p network by continuously gossiping unusable transactions | Needs further investigation.  | Needs further investigation.  |   |   |   |
+| 5.3.1  | Exploiting memory leaks in cleaning transaction pool  | Erlang is a garbage collected language and additional garbage collection is implemented for invalid transactions.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. Verify memory constraints on transaction pool | low |
+| 5.3.2  |  On Erlang nodes, atoms are stored once for each unique atom in the atom table. Exceeding the limit of atoms causes a node crash  | Ensure atoms are not created arbitrarily; ensure atoms are not created based on API input.  |   | Erlang does not garbage collect atoms. Transactions that are potentially able to create new atoms from arbitrary binaries (e.g. name claim transactions) should be reviewed | TODO: check for binary_to_atom in transaction handling. Verify memory constraints on transaction pool | low |
+| 5.3.3  |  On Erlang nodes, process identifier refers into a process table and a node table. Exceeding the limit of non-garbage-collected pids causes a node crash  | Correct implementation of pid creation on nodes; ensure limits on number of processes created based on API input.  |   |  | TODO: check code spawning new processes on nodes | low |
 | 5.4.1.1  | Attacker waits until the victim reboots (or deliberately forces the victim to reboot), and then immediately initiates incoming connections to victim from each of its attacker nodes  |  Needs further investigation | Needs further investigation  |   |  Attack shown for ETH - investigate relevance see [Persistence](https://github.com/Aeternity/protocol/blob/master/GOSSIP.md#persistence) |   |
 |  5.4.1.2 | Attacker probabilistically forces the victim to form all outgoing connection to the attacker, combined with unsolicited incoming connection requests  |  Needs further investigation |  Needs further investigation |   |Attack shown for ETH - investigate relevance; see [Peer Maintenance](https://github.com/Aeternity/protocol/blob/master/GOSSIP.md#peers-maintenance)| |   
 |  5.4.1.3 | Eclipsing node by skewing time, e.g. by manipulating the network time protocol (NTP) used by the host |  Needs further investigation | Configure host to use secure/trusted NTP (esp. relevant for peers)  | |Attack shown for ETH - investigate relevance| |  
 |  5.4.1.4 | Eclipsing node by influencing peer selection from unverified pool; assumes obtaining 'secret' used for peer selection |  Needs further investigation | Needs further investigation  | |Secret generation, storage and usage is [undocumented](https://github.com/Aeternity/protocol/blob/master/GOSSIP.md#bucket-selection) | |  
+| 5.4.2  | Slow down or disrupt the Aeternity network by tampering network traffic | N/A   |  N/A | Discuss whether in scope  |  |   |
 | 5.4.2.1  | Slow down the Aeternity network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
 | 5.4.3.1  | Flood Predefined Peer Nodes with requests on the Chain WebSocket API  |  Check request signature   | Throttle requests from same origin  |   |   |   |
 | 5.4.3.2  | Flood Predefined Peer Nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
-|  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in denial of service | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
+|  5.5 |  API vulnerabilities may be exploited to launch a DoS attack on either individual nodes or targeted groups of nodes  | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
+|  5.5.1 |  Specially crafted JSON requests can cause an unhandled exception resulting in DoS | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
 |  5.6.1 | Open a channel with a peer and subsequently refuse to cooperate, [locking up coins](https://github.com/Aeternity/protocol/tree/master/channels#incentives) and making the peer pay the channel closing fees. | N/A  |  Discouraged through incentives |  Needs further investigation |  |   |
 |  5.6.2 | Refuse to sign a transaction when the channel holds significant funds and the account sending the transaction does not have sufficient funds to close the channel. | N/A  |  Halt interactions if on-chain fees reach the point, where the fees required to timely close a channel approach the balance of the channel; Discouraged through incentives |  Needs further investigation |  |  |
 |  5.6.3 | Open multiple channels with a peer (up to the capacity of the WebSocket and subsequently refuse to cooperate, locking up coins and making the peer pay the channel closing fees. | Discouraged through incentives  |  Implement deterring incentives in protocol |  Needs further investigation |  |  High |
