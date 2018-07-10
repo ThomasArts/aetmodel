@@ -50,8 +50,8 @@ It abstracts the details and allows to define the trust boundaries and state cha
 
 General blockchain, allowing whatever actions on the blockchain.
 
-Different from BitCoin in that it has many more features and that it introduces oracles, name registration, contracts, state-channels and governance.
-Higher transaction throughput possible than in BitCoin, faster in 3 ways:  
+Different from Bitcoin in that it has many more features and that it introduces oracles, name registration, contracts, state-channels and governance.
+Higher transaction throughput possible than in Bitcoin, faster in 3 ways:  
 
 		1. Faster block rate
 		2. Bitcoin-NG technology with key-blocks and micro-blocks
@@ -85,7 +85,7 @@ There is a set of parameters, such as minimal transaction fee, that may be modif
 ## Assets
 **Assets** describe are the valuable data that the business cares about
 1. **Private Keys** are of paramount importance, the "golden nuggets"; they uniquely identify epoch nodes and used to authenticate transactions.
-2. **Password for key encryption** used to encrypt keypair files stored to disk (under invstigation if ***both*** keyspair files are encrypted - only private key is enough).
+2. **Password for key encryption** used to encrypt keypair files stored to disk (under invstigation if ***both*** keypair files are encrypted - only private key is enough).
 3. **Communication on state channels for cooperating nodes** - this is potentially an asset (according to [issue#2](https://github.com/ThomasArts/aetmodel/issues/2), but is unconfirmed and needs further investigation.
 4. **Tokens** are an expression of value in the system.
 Control over tokens that belong to an account should be unconditionally linked to the respective account's private key.
@@ -139,7 +139,7 @@ We have reviewed and adapted the parts that were considered relevant to Aeternit
 Earlier work has been done on a [thread model for Aeternity](https://github.com/Aeternity/protocol/blob/master/SYNC.md#threat-model).
 We revised the updated information and relevant aspects and included them into the current threat model.
 
-####========================================================
+=============================================
 
 "(1.1.1)" -> Details provided in tables
 "[1.1.1]" -> Details NOT provided in tables
@@ -233,16 +233,17 @@ Tampering is closely related to spoofing and information disclosure.
 			(2.7.2) Tampering blocks
 		(2.8) Tampering with code (see Note 2.2)
 			(2.8.1) Tampering with code in the epoch repository
-			(2.8.2) Tampering with code in a library used by epoch
-			(2.8.3) Tampering with code before compilation (e.g. via build software)
-			(2.8.4) Tampering from Erlang nodes on the same platform (see Note 2.3)
+			(2.8.2) Tampering with code in a library built into the epoch binary
+			(2.8.3) Tampering with code in a library used by epoch as shared dependency
+			(2.8.4) Tampering with code before compilation (e.g. via build software)
+			(2.8.5) Tampering from Erlang nodes on the same platform (see Note 2.3)
 
 * **Note 2.1: on (2.7) Database tampering**
 Epoch stores a persistent copy of the blockchain on some storage. Clearly this storage is hard to get to, but if stored on some cloud machine, it may be tampered with.
 
 * **Note 2.2: on (2.8) Code Tampering**
 The epoch node software is open source and constructed using other open source components or libraries.
-* **Note 2.3: on (2.8.4) Colocated Erlang nodes**
+* **Note 2.3: on (2.8.5) Colocated Erlang nodes**
 ***Any*** Erlang node on the same platform can interact with the Epoch nodes
 
 * **Related info**
@@ -267,7 +268,7 @@ The threats to the confidentiality and integrity of the node private keys are li
 
 Hence, if the assumption is correct, the information disclosure threat tree is a subtree of the ***Spoofing*** threat tree
 
-Update 2018-07-02, based on [issue#2](https://github.com/ThomasArts/aetmodel/issues/2)***The messages exchanged in a state channel should be private—as long as peers cooperate—, i.e. MitM should not be possible***, i.e. assumption  1 is false.
+Update 2018-07-02, based on [issue#2](https://github.com/ThomasArts/aetmodel/issues/2) ***The messages exchanged in a state channel should be private — as long as peers cooperate —, i.e. MitM should not be possible***, i.e. assumption  1 is false.
 
 Threat tree for threat vector (4): Information Disclosure.
 
@@ -283,6 +284,7 @@ Creating and posting a transaction is a computationally cheap action for an atta
 Validation of a transaction is computational cheap, but having to validate many transactions that cannot be included in a block, is a computational overhead for a node. If an attacker could
 post enormous amounts of transactions to the network, it could potentially impact the rate in which correct transactions are accepted.
 Transactions may validate but nevertheless not be possible to include in a block. For example, an attacker could post a spend-transaction including more tokens than the from account contains. This transaction is then kept in the transaction pool for a while and *check this* validated for each new block candidate.  
+By posting enormous amounts of transactions to the network, the pool of transactions kept to be included in the next block could grow beyond memory capacity causing the node to crash or possible valid transactions being pruned. Additionally the network capacity could be overloaded and therefore distribution of possible valid transactions be impacted as propagation of these may be delayed or stopped.
 
 	(5.1) Posting invalid transactions.
 	(5.2) Posting unusable transactions
@@ -300,11 +302,12 @@ Transactions may validate but nevertheless not be possible to include in a block
 			(5.4.1.4) Obtain node 'secret' used to determine peer selection from unverified pool
 		(5.4.2) Network-wide attacks against the Aeternity network
 			(5.4.2.1) Attacks to slow down the Aeternity network
-		(5.4.3) Denial of Service against Predefined Peer Nodes
+		    (5.4.2.2) Flooding the network with unresponsive nodes
+		(5.4.3) Denial of Service against predefined peer nodes
 			(5.4.3.1) Denial of Service using API functionality
 			(5.4.3.2) Denial of Service using generic DoS methods
 	(5.5) Exploiting software vulnerabilities to degrade or deny service
-		(5.5.1) Improper Check for Unusual or Exceptional Condition
+		(5.5.1) Improper check for unusual or exceptional condition
 	(5.6) Exploiting epoch protocol vulnerabilities to degrade or deny service.
 		(5.6.1) Refusing to cooperate after having opened the channel;  
 		(5.6.2) Refusing to sign a multi-party transaction;
@@ -399,9 +402,10 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 |  2.7.1 | Tampering the genesis block in persistent DB | A node is isolated if genesis block differs, no communication with other epochs possible  | Ensure that database runs in protected area |   |   |  no issue |
 |  2.7.2 | Tampering a block in persistent DB | DB is read at startup and all blocks are validated again, tampering will be noticed in block-hash that does not fit. If new consecutive hashes have been computed, then DB is considered a fork and tampered part is removed while syncing with other nodes |  Ensure that database runs in protected area | |   | no issue  |
 |  2.8.1 | Tampering with code in the Epoch repository | N/A |  (a) Use strong, 2-factor authentication for code repository (b) Security review of external pull requests | |   | low priority  |
-|  2.8.2 | Tampering with code in the Epoch trusted computing base (incl. dependencies) | N/A |  (a) Bind releases to whitelisted release tags of dependency libraries   (b) Epoch security review and testing whenever release tag changes  | |   | low priority  |
-|  2.8.3 | Tampering with code via build software prior to compilation |  N/A	 | Provide recommended toolchains for most common platforms | | | low priority  |
-|  2.8.4 | Tampering with the Epoch node over another Erlang node running on the same platform |  N/A	 | OOS; run Epoch on a dedicated host (physical or virtual) | | | low priority  |
+|  2.8.2 | Tampering with code in a library built into the epoch binary | N/A |  (a) Bind releases to whitelisted release tags of dependency libraries   (b) Epoch security review and testing whenever release tag changes   (c) Lock checksum of dependencies used to build  | |   | low priority  |
+|  2.8.3 | Tampering with code in a library used by epoch as shared dependency | N/A |  Startup/Runtime test libraries(?) - Needs further investigation  | |   | low priority  |
+|  2.8.4 | Tampering with code via build software prior to compilation |  N/A	 | Provide recommended toolchains for most common platforms | | | low priority  |
+|  2.8.5 | Tampering with the Epoch node over another Erlang node running on the same platform |  N/A	 | OOS; run Epoch on a dedicated host (physical or virtual) | | | low priority  |
 
 
 ### 3. Repudiation
@@ -436,6 +440,7 @@ As a rule, when a leaf node becomes a parent it is replaced by one or more leaf 
 |  5.4.1.4 | Eclipsing node by influencing peer selection from unverified pool; assumes obtaining 'secret' used for peer selection |  Needs further investigation | Needs further investigation  | |Secret generation, storage and usage is [undocumented](https://github.com/Aeternity/protocol/blob/master/GOSSIP.md#bucket-selection) | |  
 | 5.4.2  | Slowing down or disrupting the Aeternity network by tampering network traffic | N/A   |  N/A | Discuss whether in scope  |  |   |
 | 5.4.2.1  | Slowing down the Aeternity network by tampering with the outgoing and incoming messages of a subset of nodes  | Ensure message integrity   |   |   | Attack shown for Bitcoin - investigate relevance  |   |
+| 5.4.2.2  | Slowing down the Aeternity network by flooding the network with unresponsive nodes  | Score nodes, detect and remove disruptive ones |   |   |   |   |
 | 5.4.3.1  | Flooding predefined peer nodes with requests on the Chain WebSocket API  |  Check request signature   | Throttle requests from same origin  |   |   |   |
 | 5.4.3.2  | Flooding predefined peer nodes with packets using DoS techniques on the TCP (SYN flood) or Epoch protocol level  |    |   |   | Investigate feasibility  |   |
 |  5.5 |  Exploiting API vulnerabilities to launch a DoS attack on either individual nodes or targeted groups of nodes  | Security testing of the API  |  N/A |   | Verify that indeed all invalid transactions are rejected using a QuickCheck model (?) |  High |
